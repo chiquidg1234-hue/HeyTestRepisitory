@@ -1,0 +1,39 @@
+{
+  "name": "RobloxInventorySystem",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Shared": {
+        "$path": "src/ReplicatedStorage/Shared"
+      },
+      "Remotes": {
+        "$className": "Folder",
+        "GetInventory": {
+          "$className": "RemoteFunction"
+        },
+        "UseItem": {
+          "$className": "RemoteEvent"
+        },
+        "InventoryUpdated": {
+          "$className": "RemoteEvent"
+        }
+      }
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "InventoryService": {
+        "$path": "src/ServerScriptService/InventoryService"
+      }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "InventoryClient": {
+          "$path": "src/StarterPlayer/StarterPlayerScripts/InventoryClient.client.luau"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+# .gitignore para ~/.claude — copiar como ~/.claude/.gitignore ANTES de git init
+#
+# Regla: lista blanca. Se ignora todo y se admite sólo lo que es configuración.
+# Motivo: ~/.claude contiene transcripciones completas de conversación
+# (projects/**/*.jsonl) que pueden incluir código, rutas y secretos pegados.
+
+*
+!.gitignore
+
+# Configuración que sí quieres versionar
+!settings.json
+!CLAUDE.md
+!keybindings.json
+!skills/
+!skills/**
+!agents/
+!agents/**
+!commands/
+!commands/**
+!rules/
+!rules/**
+!plugins/
+!plugins/config.json
+
+# Nunca, bajo ninguna circunstancia
+projects/
+sessions/
+shell-snapshots/
+session-env/
+backups/
+todos/
+statsig/
+*.jsonl
+*.log
+.credentials.json
+launcher-settings.json
+**/.env
+**/*token*
+**/*credential*
+**/*secret*
