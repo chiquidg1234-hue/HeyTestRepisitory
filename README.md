@@ -10,3 +10,5 @@ un entorno de Claude / Claude Code.
 (commits, autores, licencia, CI, tests), no con estrellas.
 
 **No se ha instalado ni ejecutado nada.** El informe es previo a cualquier cambio en el entorno.
+
+- **[dossier.html](dossier.html)** — versión navegable del informe (fuente de la página publicada).

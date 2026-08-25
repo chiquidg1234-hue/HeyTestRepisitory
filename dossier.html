@@ -1,0 +1,1040 @@
+<title>Dossier GitHub Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#F1F2EE; --surface:#FAFAF8; --surface-2:#E9EBE5;
+  --ink:#171B1A; --ink-2:#57605C; --ink-3:#7C8580;
+  --rule:#D6D9D1; --rule-strong:#B9BFB5;
+  --accent:#0F5F66; --accent-soft:#DCE9E9;
+  --crit:#96271B; --crit-soft:#F3DFDB;
+  --warn:#9A6E14; --warn-soft:#F2E7CE;
+  --ok:#3A6B45; --ok-soft:#DFEADF;
+  --shadow:0 1px 2px rgba(23,27,26,.05), 0 8px 24px -16px rgba(23,27,26,.25);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#111514; --surface:#191E1D; --surface-2:#222826;
+    --ink:#E7EAE4; --ink-2:#9BA49F; --ink-3:#79827D;
+    --rule:#2A322F; --rule-strong:#3B4441;
+    --accent:#5CBFBC; --accent-soft:#16302F;
+    --crit:#E2836F; --crit-soft:#341E18;
+    --warn:#D5A757; --warn-soft:#2F2716;
+    --ok:#84C094; --ok-soft:#1A2A1D;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -18px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#111514; --surface:#191E1D; --surface-2:#222826;
+  --ink:#E7EAE4; --ink-2:#9BA49F; --ink-3:#79827D;
+  --rule:#2A322F; --rule-strong:#3B4441;
+  --accent:#5CBFBC; --accent-soft:#16302F;
+  --crit:#E2836F; --crit-soft:#341E18;
+  --warn:#D5A757; --warn-soft:#2F2716;
+  --ok:#84C094; --ok-soft:#1A2A1D;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -18px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"Newsreader",Georgia,"Times New Roman",serif;
+  font-size:17px; line-height:1.62; font-optical-sizing:auto;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,.ui{font-family:"Archivo","Helvetica Neue",Arial,sans-serif}
+code,.mono,td.num,.score{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+a{color:var(--accent); text-underline-offset:3px; text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px}
+
+/* ---------- shell ---------- */
+.wrap{max-width:1180px; margin:0 auto; padding:0 24px}
+.masthead{border-bottom:1px solid var(--rule-strong); background:var(--surface)}
+.masthead .wrap{padding-top:52px; padding-bottom:36px}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-3); display:flex; gap:14px; flex-wrap:wrap; align-items:center;
+}
+.eyebrow b{color:var(--accent); font-weight:600}
+h1{
+  font-size:clamp(38px,6.4vw,68px); line-height:1.02; margin:18px 0 0;
+  font-weight:700; letter-spacing:-.028em; text-wrap:balance; max-width:16ch;
+}
+.standfirst{font-size:clamp(18px,2.2vw,21px); color:var(--ink-2); max-width:60ch; margin:20px 0 0}
+.stats{display:flex; flex-wrap:wrap; gap:0; margin-top:34px; border-top:1px solid var(--rule)}
+.stat{padding:16px 26px 4px 0; margin-right:26px; border-right:1px solid var(--rule); flex:0 1 auto}
+.stat:last-child{border-right:0}
+.stat .n{font-family:"Archivo",sans-serif; font-size:30px; font-weight:700; letter-spacing:-.02em; display:block; font-variant-numeric:tabular-nums}
+.stat .l{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); display:block; margin-top:2px}
+.stat.crit .n{color:var(--crit)} .stat.ok .n{color:var(--accent)}
+
+/* ---------- layout ---------- */
+.layout{display:grid; grid-template-columns:200px minmax(0,1fr); gap:56px; align-items:start; padding-top:44px}
+@media(max-width:900px){.layout{grid-template-columns:1fr; gap:0}}
+nav.rail{position:sticky; top:24px; font-family:"Archivo",sans-serif; font-size:13.5px; line-height:1.35}
+@media(max-width:900px){nav.rail{position:static; margin-bottom:40px; border-bottom:1px solid var(--rule); padding-bottom:24px}}
+nav.rail ol{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:1px}
+nav.rail a{display:grid; grid-template-columns:22px 1fr; gap:8px; padding:6px 8px 6px 0; color:var(--ink-2); text-decoration:none; border-radius:3px}
+nav.rail a:hover{color:var(--ink); background:var(--surface-2)}
+nav.rail .k{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink-3); padding-top:1px}
+main{min-width:0; padding-bottom:80px}
+
+section{padding-top:18px; margin-bottom:64px; scroll-margin-top:20px}
+h2{
+  font-size:13px; letter-spacing:.16em; text-transform:uppercase; font-weight:600;
+  color:var(--accent); margin:0 0 6px; font-family:"IBM Plex Mono",monospace;
+}
+.h2sub{font-size:clamp(26px,3.6vw,36px); font-family:"Archivo",sans-serif; font-weight:700; letter-spacing:-.024em; line-height:1.1; margin:0 0 18px; text-wrap:balance}
+h3{font-size:20px; font-weight:600; letter-spacing:-.012em; margin:38px 0 10px; text-wrap:balance}
+h4{font-size:15px; font-weight:600; margin:22px 0 6px; letter-spacing:-.005em}
+p{margin:0 0 14px; max-width:68ch}
+ul,ol{max-width:68ch; padding-left:22px}
+li{margin-bottom:7px}
+hr{border:0; border-top:1px solid var(--rule); margin:36px 0}
+.lede{font-size:19px; color:var(--ink-2); max-width:64ch}
+
+/* ---------- findings ---------- */
+.finding{
+  border-left:3px solid var(--rule-strong); background:var(--surface);
+  padding:16px 20px; margin-bottom:14px; border-radius:0 4px 4px 0; box-shadow:var(--shadow);
+}
+.finding.sev-crit{border-left-color:var(--crit)}
+.finding.sev-warn{border-left-color:var(--warn)}
+.finding.sev-ok{border-left-color:var(--accent)}
+.finding h4{margin:0 0 8px; font-size:17px; display:flex; gap:10px; align-items:baseline}
+.finding h4 .idx{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-3); flex:0 0 auto}
+.finding p:last-child{margin-bottom:0}
+
+/* ---------- chips ---------- */
+.chip{
+  display:inline-block; font-family:"IBM Plex Mono",monospace; font-size:10.5px;
+  letter-spacing:.08em; text-transform:uppercase; padding:2px 7px; border-radius:3px;
+  background:var(--surface-2); color:var(--ink-2); white-space:nowrap; vertical-align:middle;
+}
+.chip.core{background:var(--accent-soft); color:var(--accent)}
+.chip.avoid{background:var(--crit-soft); color:var(--crit)}
+.chip.warn{background:var(--warn-soft); color:var(--warn)}
+.chip.ok{background:var(--ok-soft); color:var(--ok)}
+
+/* ---------- tables ---------- */
+.tablewrap{overflow-x:auto; border:1px solid var(--rule); border-radius:5px; background:var(--surface); margin:16px 0 22px}
+table{border-collapse:collapse; width:100%; font-size:14px; font-family:"Archivo",sans-serif; min-width:520px}
+caption{text-align:left; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); padding:12px 14px 6px}
+th,td{padding:9px 12px; text-align:left; border-bottom:1px solid var(--rule); vertical-align:top}
+thead th{
+  font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-3); font-weight:500; background:var(--surface-2); position:sticky; top:0;
+}
+tbody tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right; font-variant-numeric:tabular-nums; font-size:13px; white-space:nowrap}
+td.repo{font-family:"IBM Plex Mono",monospace; font-size:12.5px; white-space:nowrap}
+td.dead{color:var(--crit)}
+tbody tr:hover{background:var(--surface-2)}
+
+/* score bar */
+.score{display:flex; align-items:center; gap:8px; justify-content:flex-end}
+.score .bar{width:56px; height:5px; background:var(--surface-2); border-radius:3px; overflow:hidden; flex:0 0 auto}
+.score .bar i{display:block; height:100%; background:var(--accent)}
+.score .v{font-size:13px; font-weight:600; min-width:24px; text-align:right}
+
+/* ---------- details ---------- */
+details{border:1px solid var(--rule); border-radius:5px; background:var(--surface); margin-bottom:10px; overflow:hidden}
+details[open]{box-shadow:var(--shadow)}
+summary{
+  cursor:pointer; padding:13px 16px; font-family:"Archivo",sans-serif; font-weight:600; font-size:15px;
+  display:flex; gap:12px; align-items:baseline; justify-content:space-between; list-style:none;
+}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+"; font-family:"IBM Plex Mono",monospace; color:var(--ink-3); font-weight:400}
+details[open] summary::after{content:"−"}
+summary:hover{background:var(--surface-2)}
+summary .top{font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:400; color:var(--ink-2); text-align:right}
+.dbody{padding:0 16px 6px; border-top:1px solid var(--rule)}
+.dbody .tablewrap{border:0; border-radius:0; margin:0 -16px}
+
+/* ---------- fichas ---------- */
+.ficha{border:1px solid var(--rule); border-radius:5px; background:var(--surface); padding:20px 22px; margin-bottom:16px; box-shadow:var(--shadow)}
+.ficha > h4{margin-top:0; font-size:19px; font-family:"Archivo",sans-serif}
+.ficha .url{font-family:"IBM Plex Mono",monospace; font-size:12px; word-break:break-all}
+.kv{display:grid; grid-template-columns:auto 1fr; gap:4px 16px; font-size:14px; font-family:"Archivo",sans-serif; margin:14px 0 0}
+.kv dt{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-3); padding-top:4px; white-space:nowrap}
+.kv dd{margin:0; padding-top:2px}
+.proscons{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; font-size:14.5px; font-family:"Archivo",sans-serif}
+@media(max-width:640px){.proscons{grid-template-columns:1fr}}
+.proscons div{border-top:2px solid var(--rule)}
+.proscons .pro{border-top-color:var(--ok)} .proscons .con{border-top-color:var(--crit)}
+.proscons b{display:block; font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3); margin:8px 0 4px}
+
+/* ---------- arch diagram ---------- */
+.arch{background:var(--surface); border:1px solid var(--rule); border-radius:5px; padding:20px; margin:18px 0; font-family:"Archivo",sans-serif}
+.layer{display:grid; grid-template-columns:132px minmax(0,1fr); gap:14px; padding:11px 0; border-top:1px solid var(--rule); align-items:start}
+.layer:first-of-type{border-top:0}
+.layer .name{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3); padding-top:5px}
+.layer .items{display:flex; flex-wrap:wrap; gap:6px}
+.pill{font-size:13px; padding:4px 10px; border-radius:20px; border:1px solid var(--rule-strong); background:var(--ground); white-space:nowrap}
+.pill.core{border-color:var(--accent); background:var(--accent-soft); color:var(--accent); font-weight:600}
+.base{background:var(--accent-soft); border:1px dashed var(--accent); border-radius:4px; padding:12px 14px; margin-bottom:8px}
+.base .name{color:var(--accent)}
+
+/* ---------- phases ---------- */
+.phase{display:grid; grid-template-columns:64px minmax(0,1fr); gap:18px; padding:18px 0; border-top:1px solid var(--rule)}
+.phase .n{font-family:"Archivo",sans-serif; font-weight:700; font-size:13px; letter-spacing:.06em; color:var(--ink-3); text-transform:uppercase; padding-top:3px}
+.phase h4{margin-top:0}
+
+/* ---------- callout ---------- */
+.callout{border:1px solid var(--rule-strong); border-left:3px solid var(--accent); background:var(--surface); padding:14px 18px; border-radius:0 4px 4px 0; margin:20px 0; font-size:16px}
+.callout.danger{border-left-color:var(--crit)}
+.callout p:last-child{margin-bottom:0}
+.callout strong{font-weight:600}
+
+footer{border-top:1px solid var(--rule-strong); background:var(--surface); padding:36px 0 60px; margin-top:20px; font-size:15px; color:var(--ink-2)}
+footer .wrap{max-width:1180px}
+footer strong{color:var(--ink)}
+.srcgrid{columns:2; column-gap:36px; font-size:14.5px; font-family:"Archivo",sans-serif}
+@media(max-width:700px){.srcgrid{columns:1}}
+.srcgrid p{break-inside:avoid; margin-bottom:10px; max-width:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+</style>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow">
+      <span>Investigación independiente</span><span>·</span>
+      <span>Medición del <b>25 · 08 · 2026</b></span><span>·</span>
+      <span>232 repositorios</span>
+    </div>
+    <h1>Dossier GitHub Intelligence</h1>
+    <p class="standfirst">Qué merece entrar en un entorno de Claude Code, qué no, y por qué — juzgado por evidencia de mantenimiento medida repo a repo, no por estrellas.</p>
+    <div class="stats">
+      <div class="stat"><span class="n">232</span><span class="l">repos medidos</span></div>
+      <div class="stat ok"><span class="n">25</span><span class="l">recomendados</span></div>
+      <div class="stat crit"><span class="n">28</span><span class="l">muertos que se siguen citando</span></div>
+      <div class="stat crit"><span class="n">26,1 %</span><span class="l">skills públicas vulnerables</span></div>
+      <div class="stat"><span class="n">0</span><span class="l">instalaciones realizadas</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap layout">
+<nav class="rail" aria-label="Secciones del informe">
+  <ol>
+    <li><a href="#metodo"><span class="k">00</span><span>Método</span></a></li>
+    <li><a href="#hallazgos"><span class="k">01</span><span>Hallazgos</span></a></li>
+    <li><a href="#meta"><span class="k">02</span><span>Repos meta</span></a></li>
+    <li><a href="#categorias"><span class="k">03</span><span>Por categoría</span></a></li>
+    <li><a href="#top25"><span class="k">04</span><span>Top 25</span></a></li>
+    <li><a href="#fichas"><span class="k">05</span><span>Los 10 clave</span></a></li>
+    <li><a href="#evitar"><span class="k">06</span><span>No recomendados</span></a></li>
+    <li><a href="#arquitectura"><span class="k">07</span><span>Arquitectura</span></a></li>
+    <li><a href="#plan"><span class="k">08</span><span>Plan por fases</span></a></li>
+    <li><a href="#riesgo"><span class="k">09</span><span>Matriz de riesgo</span></a></li>
+    <li><a href="#fuentes"><span class="k">10</span><span>Fuentes</span></a></li>
+  </ol>
+</nav>
+
+<main>
+
+<section id="metodo">
+  <h2>00 — Método</h2>
+  <p class="h2sub">Medido, no leído en una lista</p>
+  <p class="lede">Cada candidato se midió clonando solo sus metadatos (<code>--depth 100 --filter=blob:none --no-checkout</code>) y leyendo su historial. Nada del repositorio se ejecutó.</p>
+  <div class="tablewrap">
+    <table>
+      <caption>Señales recogidas</caption>
+      <thead><tr><th>Señal</th><th>Origen</th><th>Qué prueba</th></tr></thead>
+      <tbody>
+        <tr><td>Último commit · commits en 30/90/365 d</td><td class="mono">git log</td><td>Mantenimiento real, no percibido</td></tr>
+        <tr><td>Autores distintos</td><td class="mono">git log --format=%ae</td><td>Bus factor y concentración</td></tr>
+        <tr><td>LICENSE · SECURITY.md · CI · tests</td><td class="mono">git ls-tree -r HEAD</td><td>Higiene de ingeniería</td></tr>
+        <tr><td>Licencia exacta</td><td>fichero <code>LICENSE</code> descargado</td><td>Restricciones legales reales</td></tr>
+        <tr><td>Estrellas · issues · forks</td><td>página de GitHub</td><td>Adopción — señal <em>secundaria</em></td></tr>
+        <tr><td>Renombrados y repos vaciados</td><td>URL solicitada vs. final</td><td>Proyectos zombi o migrados</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>Límite del método:</strong> con profundidad 100, un valor de <span class="mono">100</span> commits significa «al menos 100» — el contador toca techo.</p>
+  <h4>Cuatro reglas aplicadas</h4>
+  <ol>
+    <li>Las estrellas no puntúan solas. Hay repos de 240 000 ★ en la lista de descartados y uno de 1 096 ★ en el núcleo.</li>
+    <li>Un repositorio parado no es «estable» salvo que sea trivial. Una lista de 3 ficheros sobrevive sin commits; un escáner de seguridad, no.</li>
+    <li>Lo que Claude Code ya trae de serie descalifica a su equivalente externo.</li>
+    <li>Todo lo que ejecuta código o lee ficheros pasa antes por seguridad. Una skill <em>es</em> código. Un MCP <em>es</em> un canal de inyección.</li>
+  </ol>
+</section>
+
+<section id="hallazgos">
+  <h2>01 — Resumen ejecutivo</h2>
+  <p class="h2sub">Los diez hallazgos que cambian decisiones</p>
+
+  <div class="finding sev-ok">
+    <h4><span class="idx">01</span><span>El mejor repositorio «meta» no es una awesome-list</span></h4>
+    <p><a href="https://github.com/anthropics/claude-plugins-official">anthropics/claude-plugins-official</a> — el marketplace oficial — tiene <strong>≥105 commits en 30 días</strong> y lo mantiene el mismo equipo que mantiene el runtime. Soporta allowlist/blocklist por owner (<code>"owner/*"</code>). La documentación oficial de MCP lo referencia directamente. Casi todo el ecosistema de listas curadas que domina Google es, comparado, ruido con SEO.</p>
+  </div>
+
+  <div class="finding sev-crit">
+    <h4><span class="idx">02</span><span>El 26,1 % de las skills públicas contiene al menos una vulnerabilidad</span></h4>
+    <p>Estudio de enero de 2026 sobre <strong>42 447 skills</strong> recopiladas de dos marketplaces, 31 132 analizadas con un detector validado (86,7 % precisión / 82,5 % recall): 13,3 % exfiltración de datos, 11,8 % escalada de privilegios, y un <strong>5,2 % con patrones de alta severidad que sugieren intención maliciosa</strong>. Las skills que empaquetan scripts ejecutables son <strong>2,12× más propensas</strong> a ser vulnerables (OR = 2,12, p &lt; 0,001). <a href="https://arxiv.org/abs/2601.10338">arXiv:2601.10338</a></p>
+    <p>Consecuencia: instalar una colección de 183 skills de un desconocido no es «probar una herramienta», es ejecutar código de 183 procedencias distintas.</p>
+  </div>
+
+  <div class="finding sev-crit">
+    <h4><span class="idx">03</span><span>El repo de Claude Code más famoso del mundo tiene un clon con malware en circulación</span></h4>
+    <p><code>affaan-m/ECC</code> (241 210 ★). Una <a href="https://dev.to/joergmichno/we-audited-the-viral-213k-star-everything-claude-code-repo-and-found-a-malware-clone-in-the-wild-14hb">auditoría de junio de 2026</a> clonó el original y 19 re-subidas y las diffeó contra upstream: el original <strong>no es malware</strong>, pero instala «una superficie grande, globalmente activa y de auto-ejecución». Una de las re-subidas <strong>sí es un dropper</strong>: README falso de descarga, ZIP con <code>Launch.bat → luajit.exe x64.txt</code> y payload Lua ofuscado de 307 KB, más un segundo archivo escondido. La popularidad extrema genera clones envenenados de forma automática.</p>
+  </div>
+
+  <div class="finding sev-crit">
+    <h4><span class="idx">04</span><span>ruvnet/claude-flow (hoy «ruflo») es el caso más claro de viralidad sin sustancia</span></h4>
+    <p>66 205 ★, y <strong>6 806 de las contribuciones son de una sola persona</strong>. Una <a href="https://gist.github.com/roman-rr/ed603b676af019b8740423d2bb8e4bf6">auditoría técnica de abril de 2026</a> probó sus 300+ herramientas MCP a mano: <code>agent_spawn</code> solo crea una entrada en un <code>Map</code> de JavaScript; el «consenso bizantino» son eventos de un <code>EventEmitter</code> dentro de un único proceso; el agente WASM devuelve <code>echo: &lt;tu input&gt;</code>; el «entrenamiento neuronal» devuelve <code>Math.random()</code>; el hive-mind es literalmente <code>spawn('claude', ['--dangerously-skip-permissions', …])</code>. Conclusión: ~10 de 300+ herramientas son reales.</p>
+  </div>
+
+  <div class="finding sev-warn">
+    <h4><span class="idx">05</span><span>La guerra de benchmarks de memoria invalida las cifras de ambos bandos</span></h4>
+    <p>Zep publicó 84 % en LoCoMo. Mem0 <a href="https://github.com/getzep/zep-papers/issues/5">demostró</a> que el cálculo incluía la categoría adversarial excluida por el protocolo → 58,44 %. Zep <a href="https://blog.getzep.com/lies-damn-lies-statistics-is-mem0-really-sota-in-agent-memory/">rectificó públicamente</a> y publicó 75,14 % ± 0,17. Un análisis independiente encontró que <strong>el 6,4 % del propio answer key está mal</strong>, que el juez LLM acepta el 63 % de respuestas intencionadamente incorrectas y que el 56 % de las comparaciones por categoría son indistinguibles del ruido. <strong>No elijas memoria por benchmark.</strong></p>
+  </div>
+
+  <div class="finding sev-warn">
+    <h4><span class="idx">06</span><span>Letta (MemGPT) ya no es lo que dicen las listas</span></h4>
+    <p><code>letta-ai/letta</code> tiene hoy <strong>12 ficheros</strong>: es una landing page, y su README lo declara. El desarrollo vive en <code>letta-ai/letta-code</code>, que <strong>ya no es un servidor de memoria sino un harness de codificación</strong> que compite con Claude Code. Cualquier lista de 2026 que te lo recomiende «para dar memoria a Claude» está desactualizada.</p>
+  </div>
+
+  <div class="finding sev-warn">
+    <h4><span class="idx">07</span><span>Arize Phoenix no es software libre, y casi ningún comparativo lo dice</span></h4>
+    <p>Verificado descargando el fichero: Phoenix se licencia bajo <strong>Elastic License 2.0</strong>, no una licencia OSI. Langfuse mantiene núcleo MIT con carpetas <code>ee/</code> restringidas y desde enero de 2026 pertenece a ClickHouse, Inc. El único de los tres grandes con <strong>Apache-2.0 limpio en todo el repositorio es Opik</strong>. Si el criterio es self-host sin sorpresas, el ranking cambia de orden.</p>
+  </div>
+
+  <div class="finding sev-crit">
+    <h4><span class="idx">08</span><span>Hay un cementerio de herramientas de seguridad para IA</span></h4>
+    <p>Medido hoy: <code>protectai/rebuff</code> <strong>942 días</strong> sin commits · <code>protectai/vulnhuntr</code> <strong>564</strong> · <code>riseandignite/mcp-shield</code> <strong>486</strong> · <code>slowmist/MCP-Security-Checklist</code> <strong>484</strong> · <code>lasso-security/mcp-gateway</code> <strong>215</strong> · <code>protectai/llm-guard</code> 1 commit en 90 días. Todas se siguen recomendando. Defensa anti-inyección sin mantenimiento es peor que ninguna: da falsa confianza.</p>
+  </div>
+
+  <div class="finding sev-crit">
+    <h4><span class="idx">09</span><span>Existe un ataque de skills que evade el 100 % de los escáneres</span></h4>
+    <p><em>Semantic Compliance Hijacking</em>: en vez de incluir un payload, la skill escribe reglas de cumplimiento en lenguaje natural que llevan al agente a generar y ejecutar el código malicioso por sí mismo. Hasta <strong>77,67 % de éxito en fuga de confidencialidad, 67,33 % en RCE, y 0,00 % de detección</strong> por las herramientas actuales. <a href="https://arxiv.org/abs/2605.14460">arXiv:2605.14460</a>. Por eso el escáner es necesario pero no suficiente: lo que sí funciona es el sandbox de sistema operativo, porque limita lo que el código <em>puede hacer</em>, no lo que <em>parece</em>.</p>
+  </div>
+
+  <div class="finding sev-ok">
+    <h4><span class="idx">10</span><span>El mejor hallazgo oculto: inspect_ai, del AI Safety Institute británico</span></h4>
+    <p>2 601 ★ — ridículas para lo que es — pero <strong>580 commits en 30 días, 1 430 en el año, 104 autores, 780 ficheros de test, MIT</strong>. Probablemente el mejor ratio calidad/fama del informe. Del mismo tipo: <code>safedep/vet</code> (1 096 ★, detección de paquetes maliciosos), <code>54yyyu/zotero-mcp</code> (177 commits/30 d) y <code>LearningCircuit/local-deep-research</code> (66 workflows de CI, 2 132 ficheros de test con visibilidad mínima).</p>
+  </div>
+</section>
+
+<section id="meta">
+  <h2>02 — Repositorios meta</h2>
+  <p class="h2sub">Qué sirve de verdad para descubrir</p>
+  <p class="lede">Una sola pregunta: ¿me ayudan a encontrar cosas buenas, o solo acumulan enlaces?</p>
+
+  <h3>Nivel 1 · Fuentes con autoridad</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Repositorio</th><th class="num">Actividad</th><th>Por qué es la puerta de entrada</th></tr></thead>
+      <tbody>
+        <tr><td class="repo"><a href="https://github.com/anthropics/claude-plugins-official">anthropics/claude-plugins-official</a></td><td class="num">≥105 / 30 d</td><td>Marketplace oficial. Allowlist por owner. <span class="chip core">empezar aquí</span></td></tr>
+        <tr><td class="repo"><a href="https://github.com/agentskills/agentskills">agentskills/agentskills</a></td><td class="num">24 654 ★</td><td>La especificación del estándar Agent Skills, ya multi-proveedor. Leerla vale más que 50 listas.</td></tr>
+        <tr><td class="repo"><a href="https://github.com/modelcontextprotocol/registry">modelcontextprotocol/registry</a></td><td class="num">30 / 30 d</td><td>Registro oficial de MCP. Única fuente con identidad de publicador verificable.</td></tr>
+        <tr><td class="repo"><a href="https://github.com/modelcontextprotocol/servers">modelcontextprotocol/servers</a></td><td class="num">684 autores</td><td>Implementación canónica de referencia — no un catálogo.</td></tr>
+        <tr><td class="repo"><a href="https://github.com/modelcontextprotocol/modelcontextprotocol">modelcontextprotocol/…/protocol</a></td><td class="num">187 / 30 d</td><td>Donde se debaten las decisiones de seguridad antes de existir.</td></tr>
+        <tr><td class="repo"><a href="https://github.com/anthropics/claude-cookbooks">anthropics/claude-cookbooks</a></td><td class="num">367 / año</td><td>Patrones oficiales verificables. Menos framework, más «así se hace bien».</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Nivel 2 · Curación o ranking real</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Repositorio</th><th class="num">Evidencia</th><th>Juicio</th></tr></thead>
+      <tbody>
+        <tr><td class="repo"><a href="https://github.com/tolkonepiu/best-of-mcp-servers">tolkonepiu/best-of-mcp-servers</a></td><td class="num">154 / año · 400 proyectos</td><td><strong>El mejor descubridor no oficial.</strong> Ranking por <em>project-quality score</em> automático, actualizado semanalmente. Exactamente el patrón «repo que se actualiza solo».</td></tr>
+        <tr><td class="repo"><a href="https://github.com/hesreallyhim/awesome-claude-code">hesreallyhim/awesome-claude-code</a></td><td class="num">52 913 ★ · 922 issues</td><td>Curación manual real. <strong>Licencia CC BY-NC-ND 4.0</strong>: no comercial, sin derivados. Consúltala, no la reutilices en material de empresa.</td></tr>
+        <tr><td class="repo"><a href="https://github.com/DavidZWZ/Awesome-Deep-Research">DavidZWZ/Awesome-Deep-Research</a></td><td class="num">18 / 90 d</td><td>Nicho y honesto: papers + implementaciones, vinculado a ACL 2026.</td></tr>
+        <tr><td class="repo"><a href="https://github.com/e2b-dev/awesome-ai-agents">e2b-dev/awesome-ai-agents</a></td><td class="num">5 / año</td><td>Buena estructura, mantenimiento mínimo. Mapa histórico.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Nivel 3 · Volumen sin curación</h3>
+  <div class="callout danger">
+    <p><strong>punkpeye/awesome-mcp-servers</strong> — 6 843 commits/año y <strong>2 892 autores distintos</strong>. Es una manguera de pull requests de autopromoción: estar en la lista no significa <em>nada</em> sobre la calidad. Sirve para saber que algo existe, jamás como recomendación. <code>wong2</code> (43 d parado) y <code>appcypher</code> (111 d, sin licencia) siguen el mismo patrón con menos volumen.</p>
+  </div>
+
+  <h3>Nivel 4 · Muertos que siguen circulando</h3>
+  <p><code>WooooDyy/LLM-Agent-Paper-List</code> 347 d · <code>Puliczek/awesome-mcp-security</code> 174 d · <code>slowmist/MCP-Security-Checklist</code> 484 d · <code>ml-tooling/best-of-generator</code> 359 d.</p>
+  <p><strong>Conclusión:</strong> de ~15 repositorios meta evaluados, solo 6 fuentes oficiales y 2 listas aportan valor real. El resto es volumen.</p>
+</section>
+
+<section id="categorias">
+  <h2>03 — Top por categoría</h2>
+  <p class="h2sub">Diez categorías, medidas una a una</p>
+  <p class="lede">Despliega cada categoría. <span class="mono">≥100</span> significa que el contador de commits tocó techo.</p>
+
+  <details>
+    <summary><span>A · AI Agents — frameworks y runtimes</span><span class="top">mejor: pydantic-ai</span></summary>
+    <div class="dbody">
+      <div class="tablewrap"><table>
+        <thead><tr><th>Repo</th><th class="num">Actividad</th><th>Licencia</th><th>Veredicto</th></tr></thead>
+        <tbody>
+          <tr><td class="repo">pydantic/pydantic-ai</td><td class="num">≥100/30d · 1 707 tests</td><td>MIT</td><td><strong>Mejor de la categoría en Python.</strong> Tipado y testeable; la relación test/código delata disciplina.</td></tr>
+          <tr><td class="repo">stanfordnlp/dspy</td><td class="num">65/30d</td><td>MIT</td><td>Optimización programática de prompts. Vale leerlo aunque no lo adoptes.</td></tr>
+          <tr><td class="repo">BoundaryML/baml</td><td class="num">≥100/30d · 1 085 tests</td><td>Apache-2.0</td><td>Salidas estructuradas con lenguaje propio. Sólido; coste de aprendizaje real.</td></tr>
+          <tr><td class="repo">langchain-ai/langgraph</td><td class="num">36/30d</td><td>MIT</td><td>Estándar de facto para grafos de estado. Abstracciones pesadas.</td></tr>
+          <tr><td class="repo">crewAIInc/crewAI</td><td class="num">≥100/30d · 27 142 ficheros</td><td>MIT</td><td>Muy popular, muy pesado. Demos bonitas, sistemas difíciles de depurar.</td></tr>
+          <tr><td class="repo dead">microsoft/autogen</td><td class="num dead">140 d parado</td><td>MIT</td><td>En pausa larga. No lo elegiría para empezar hoy.</td></tr>
+          <tr><td class="repo dead">humanlayer/12-factor-agents</td><td class="num dead">338 d parado</td><td>Apache-2.0</td><td>Texto excelente y vigente; repositorio congelado.</td></tr>
+        </tbody>
+      </table></div>
+      <p style="padding:12px 0"><strong>Encuadre:</strong> para mejorar Claude Code, ninguno es prioritario. Claude Code ya <em>es</em> el runtime de agente. Estos frameworks sirven para construir agentes propios.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span>B · Claude / AI Coding Agents</span><span class="top">mejor: serena</span></summary>
+    <div class="dbody">
+      <div class="tablewrap"><table>
+        <thead><tr><th>Repo</th><th class="num">Actividad</th><th>Veredicto</th></tr></thead>
+        <tbody>
+          <tr><td class="repo">oraios/serena</td><td class="num">28 465 ★ · 117/30d · 704 tests</td><td><strong>El mejor MCP para código que existe.</strong> Recuperación y edición semántica por language server. Su propio README avisa: no lo instales desde marketplaces, usan comandos obsoletos.</td></tr>
+          <tr><td class="repo">github/spec-kit</td><td class="num">131 139 ★ · ≥100/30d · 25 CI</td><td>Desarrollo dirigido por especificación, mantenido por GitHub. Metodología sólida y agnóstica de agente.</td></tr>
+          <tr><td class="repo">obra/superpowers</td><td class="num">277 365 ★ · ≥100/90d</td><td>Metodología empaquetada como skills. Valioso pero caro en tokens <span class="chip warn">con condiciones</span></td></tr>
+          <tr><td class="repo">wshobson/agents</td><td class="num">39 105 ★ · solo 10 issues</td><td>Subagentes multi-harness. 10 issues abiertos con 39 k ★ indica mantenimiento real.</td></tr>
+          <tr><td class="repo">ryoppippi/ccusage</td><td class="num">18 094 ★ · ≥100/30d</td><td>Coste y uso desde los JSONL locales. <strong>Sin red.</strong> Riesgo prácticamente nulo.</td></tr>
+          <tr><td class="repo">daaain/claude-code-log</td><td class="num">359 tests</td><td>Transcripciones → HTML navegable. Nicho, muy bien construido.</td></tr>
+          <tr><td class="repo">davila7/claude-code-templates</td><td class="num">30 311 ★ · 9 228 ficheros / 24 tests</td><td>Activo, pero volumen sobre verificación.</td></tr>
+          <tr><td class="repo">musistudio/claude-code-router</td><td class="num">154/30d</td><td>Vivo. <strong>Privacidad:</strong> su función es enviar tus prompts y tu código a otros proveedores.</td></tr>
+          <tr><td class="repo dead">SuperClaude_Framework</td><td class="num dead">1 commit/30d · 2/90d</td><td>Referencia en 2025. Hoy prácticamente parado.</td></tr>
+          <tr><td class="repo dead">eyaltoledano/claude-task-master</td><td class="num dead">124 d · 0 en 90 d</td><td>422 commits el año pasado, cero el último trimestre.</td></tr>
+          <tr><td class="repo dead">BloopAI/vibe-kanban</td><td class="num dead">123 d</td><td>Detenido.</td></tr>
+          <tr><td class="repo dead">getAsterisk/claudia · CCPlugins · claudekit</td><td class="num dead">313 · 322 · 146 d</td><td>Muertos o parados.</td></tr>
+          <tr><td class="repo dead">spec-workflow · project-index · wshobson/commands · agent-rules</td><td class="num dead">352 · 348 · 317 · 120 d</td><td>Superados o abandonados.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </details>
+
+  <details>
+    <summary><span>C · Agent Memory</span><span class="top">mejor: según licencia y formato</span></summary>
+    <div class="dbody">
+      <div class="tablewrap"><table>
+        <thead><tr><th>Repo</th><th class="num">Actividad</th><th>Licencia</th><th>Veredicto</th></tr></thead>
+        <tbody>
+          <tr><td class="repo">topoteretes/cognee</td><td class="num">667/30d · 5 995/año · 750 tests</td><td>Apache-2.0</td><td><strong>El proyecto de memoria OSS más activo, con diferencia.</strong> Grafo autoalojable. Menor riesgo de abandono.</td></tr>
+          <tr><td class="repo">getzep/graphiti</td><td class="num">30 283 ★ · 39/30d</td><td>Apache-2.0</td><td><strong>La mejor arquitectura conceptual:</strong> grafo temporal con ventanas de validez. Modela «me mudé de Londres a Tokio» como cambio de estado. Requiere Neo4j/FalkorDB.</td></tr>
+          <tr><td class="repo">mem0ai/mem0</td><td class="num">63 960 ★ · 681 issues</td><td>Apache-2.0</td><td>Integración más rápida, comunidad más grande. Afirmaciones de SOTA disputadas. Fuentes secundarias dicen que el grafo completo es de pago <em>[no verificado]</em>.</td></tr>
+          <tr><td class="repo">basicmachines-co/basic-memory</td><td class="num">≥100/30d · 412 tests</td><td><strong>AGPL-3.0</strong></td><td>Memoria como Markdown local que tú lees, versionas y te llevas. Ojo al copyleft fuerte y al upsell de nube.</td></tr>
+          <tr><td class="repo">doobidoo/mcp-memory-service</td><td class="num">174/30d · <strong>13 issues</strong></td><td>Apache-2.0</td><td><strong>Joya oculta.</strong> Self-hosted con sqlite-vec, REST + MCP + OAuth. La mejor proporción issues/estrellas de la categoría.</td></tr>
+          <tr><td class="repo">MemTensor/MemOS</td><td class="num">1 324/año · 432 tests</td><td>Apache-2.0</td><td>Origen académico con ingeniería seria. Menos maduro para uso diario.</td></tr>
+          <tr><td class="repo dead">letta-ai/letta</td><td class="num dead">repo vaciado: 12 ficheros</td><td>Apache-2.0</td><td>Landing page. El sucesor es un harness rival, no memoria.</td></tr>
+          <tr><td class="repo dead">MemoryOS · MIRIX · A-mem</td><td class="num dead">2/90d · 12/90d · 255 d</td><td>—</td><td>Apagándose o abandonados.</td></tr>
+          <tr><td class="repo dead">Olow304/memvid</td><td class="num dead">4 commits/90 d</td><td>MIT</td><td>Concepto viral, actividad desplomada.</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout"><p><strong>Aviso para toda la categoría:</strong> Claude Code ya tiene auto-memoria nativa por repositorio (notas que escribe él solo, compartidas entre worktrees, hasta 200 líneas / 25 KB) además de <code>CLAUDE.md</code> y <code>.claude/rules/</code>. Para memoria <em>de proyecto</em>, lo nativo probablemente basta. Un MCP aporta valor sobre todo para conocimiento <em>transversal entre proyectos</em>.</p></div>
+    </div>
+  </details>
+
+  <details>
+    <summary><span>D · Knowledge · Research · RAG</span><span class="top">mejor: docling</span></summary>
+    <div class="dbody">
+      <div class="tablewrap"><table>
+        <thead><tr><th>Repo</th><th class="num">Actividad</th><th>Veredicto</th></tr></thead>
+        <tbody>
+          <tr><td class="repo">docling-project/docling</td><td class="num">65 525 ★ · 1 154 tests</td><td><strong>El mejor conversor documento → IA.</strong> PDF/DOCX/PPTX/XLSX con estructura y tablas. Proyecto IBM. Sin discusión.</td></tr>
+          <tr><td class="repo">HKUDS/LightRAG</td><td class="num">723/30d · 1 352/90d</td><td>GraphRAG ligero de origen académico (EMNLP 2025). Mejor coste/resultado que GraphRAG de Microsoft.</td></tr>
+          <tr><td class="repo">microsoft/graphrag</td><td class="num">13/30d · 36 issues</td><td>Maduro y estabilizado, no muerto. Indexación cara en tokens.</td></tr>
+          <tr><td class="repo">assafelovic/gpt-researcher</td><td class="num">178 autores</td><td>El agente de investigación con más adopción real.</td></tr>
+          <tr><td class="repo">LearningCircuit/local-deep-research</td><td class="num">66 CI · 2 132 tests</td><td><strong>Joya oculta.</strong> Verificación automática impropia de su visibilidad.</td></tr>
+          <tr><td class="repo">54yyyu/zotero-mcp</td><td class="num">177/30d · 163 tests</td><td><strong>Joya oculta.</strong> Citas y bibliografía por MCP: resuelve <em>source tracking</em> de verdad.</td></tr>
+          <tr><td class="repo">google/langextract</td><td class="num">80/año</td><td>Extracción estructurada <strong>anclada al texto fuente</strong>. Pequeño y exacto para fact-checking.</td></tr>
+          <tr><td class="repo">bytedance/deer-flow</td><td class="num">≥100/30d · 787 tests</td><td>Multi-agente sobre LangGraph con respaldo corporativo.</td></tr>
+          <tr><td class="repo dead">SciPhi-AI/R2R</td><td class="num dead">291 d</td><td>Se sigue recomendando. Parado.</td></tr>
+          <tr><td class="repo dead">explodinggradients/ragas</td><td class="num dead">182 d</td><td>Evaluación RAG omnipresente en tutoriales, sin commits en 6 meses.</td></tr>
+          <tr><td class="repo dead">storm · nano-graphrag · fast-graphrag · gitingest · dzhng/deep-research</td><td class="num dead">328 · 210 · 296 · 374 · 135 d</td><td>Muertos.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </details>
+
+  <details>
+    <summary><span>E · Security</span><span class="top">peor relación fama/realidad del informe</span></summary>
+    <div class="dbody">
+      <div class="tablewrap"><table>
+        <thead><tr><th>Repo</th><th class="num">Actividad</th><th>Veredicto</th></tr></thead>
+        <tbody>
+          <tr><td class="repo">snyk/agent-scan <span class="chip">ex mcp-scan</span></td><td class="num">49/30d · 339 tests · 9 issues</td><td><strong>Lo más cercano a imprescindible.</strong> Escanea MCP, agentes <em>y skills</em> locales buscando inyecciones. Avisos del propio README: salida de CLI experimental y <strong>v0.5.x marcada para deprecación</strong>. Se instala con <code>uvx</code>.</td></tr>
+          <tr><td class="repo">anthropic-experimental/sandbox-runtime</td><td class="num">4 990 ★ · 52/30d · 189 tests</td><td><strong>El descubrimiento más útil de la categoría.</strong> Es el motor de sandbox de Claude Code como herramienta suelta (<code>srt</code>): <code>sandbox-exec</code>/<code>bubblewrap</code> + proxy de red. Sirve para enjaular MCP de terceros. Beta research preview.</td></tr>
+          <tr><td class="repo">promptfoo/promptfoo</td><td class="num">24 538 ★ · 1 132 tests</td><td>Evaluación + red teaming declarativo en CI.</td></tr>
+          <tr><td class="repo">NVIDIA/garak</td><td class="num">1 817/año · 219 tests</td><td>Escáner de vulnerabilidades de LLM con respaldo corporativo.</td></tr>
+          <tr><td class="repo">microsoft/PyRIT</td><td class="num">≥100/30d · 626 tests</td><td><strong>Ojo:</strong> <code>Azure/PyRIT</code> está vacío. Muchas listas apuntan al muerto.</td></tr>
+          <tr><td class="repo">trufflesecurity/trufflehog</td><td class="num">48/30d · AGPL-3.0</td><td>Secretos <em>con verificación</em>: comprueba si la credencial sigue viva. La AGPL importa si integras.</td></tr>
+          <tr><td class="repo">gitleaks/gitleaks</td><td class="num">19/90d · MIT</td><td>Más simple y con licencia más permisiva. Lento pero no muerto.</td></tr>
+          <tr><td class="repo">semgrep/semgrep</td><td class="num">8 260 tests · LGPL-2.1</td><td>SAST multilenguaje con reglas legibles. Base para pre-commit.</td></tr>
+          <tr><td class="repo">safedep/vet</td><td class="num">1 096 ★ · 231/año</td><td><strong>Joya oculta.</strong> No busca CVEs: busca <em>paquetes maliciosos</em> — el vector real cuando un agente instala dependencias por ti.</td></tr>
+          <tr><td class="repo">google/osv-scanner · aquasecurity/trivy</td><td class="num">42 · 43 /30d</td><td>Vulnerabilidades de dependencias y contenedores. Cero fricción.</td></tr>
+          <tr><td class="repo">superradcompany/microsandbox</td><td class="num">7 534 ★ · 169/30d</td><td>microVMs locales. Aislamiento más fuerte que <code>srt</code>, coste operativo mayor.</td></tr>
+          <tr><td class="repo dead">protectai/rebuff · vulnhuntr · llm-guard</td><td class="num dead">942 · 564 d · 1 commit/90d</td><td>Abandonados o agonizando.</td></tr>
+          <tr><td class="repo dead">mcp-shield · mcp-gateway · MCP-Security-Checklist</td><td class="num dead">486 · 215 · 484 d</td><td>Abandonados y aun así muy citados.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </details>
+
+  <details>
+    <summary><span>F · AI Fluency</span><span class="top">aquí GitHub aporta poco</span></summary>
+    <div class="dbody" style="padding-bottom:16px">
+      <p>Lo valioso es marco conceptual, no código. El <strong>marco 4D de Anthropic</strong> — Delegation, Description, Discernment, Diligence — se desarrolló con los profesores Rick Dakan (Ringling College) y Joseph Feller (University College Cork). Curso gratuito en <a href="https://academy.claude.com/courses/ai-fluency-framework-foundations">Claude Academy</a> y materiales abiertos en <a href="https://aifluencyframework.org/">aifluencyframework.org</a>.</p>
+      <ul>
+        <li><strong>Lee la spec de <a href="https://github.com/agentskills/agentskills">agentskills</a></strong> — el mejor texto práctico sobre cómo estructurar conocimiento reutilizable.</li>
+        <li><strong>Lee <code>obra/superpowers</code> como currículo</strong> aunque no lo instales: la metodología es correcta con independencia de si pagas los tokens del harness.</li>
+        <li><code>anthropics/courses</code> (284 d parado), <code>12-factor-agents</code> (338 d), <code>davidkimai/Context-Engineering</code> (179 d) y <code>coleam00/context-engineering-intro</code> (162 d): contenido válido, repositorios congelados. Muy virales en X y YouTube.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary><span>G · Instalación y productividad</span><span class="top">mejor: uv</span></summary>
+    <div class="dbody">
+      <div class="tablewrap"><table>
+        <thead><tr><th>Repo</th><th class="num">Actividad</th><th>Veredicto</th></tr></thead>
+        <tbody>
+          <tr><td class="repo">astral-sh/uv</td><td class="num">89 041 ★ · ≥100/30d</td><td><strong>Imprescindible si tocas Python.</strong> Además es el instalador que piden varias herramientas de este informe. Entornos efímeros = menos superficie.</td></tr>
+          <tr><td class="repo">jdx/mise</td><td class="num">≥100/30d</td><td>Versiones de runtimes + tareas + entorno en una herramienta. Reemplaza asdf/nvm/pyenv/direnv.</td></tr>
+          <tr><td class="repo">twpayne/chezmoi</td><td class="num">51/30d</td><td>Dotfiles con secretos. Aquí debe vivir tu configuración de <code>~/.claude/</code>.</td></tr>
+          <tr><td class="repo">casey/just</td><td class="num">116 tests</td><td>Darle a Claude un <code>justfile</code> es más seguro y barato que dejarle improvisar comandos.</td></tr>
+          <tr><td class="repo">simonw/llm</td><td class="num">147/30d</td><td>CLI de LLMs con plugins y log en SQLite. Perfecto para tareas one-shot fuera de Claude Code.</td></tr>
+          <tr><td class="repo">pre-commit/pre-commit</td><td class="num">90/año</td><td>La forma correcta de imponer gitleaks/semgrep <em>antes</em> de que el agente haga commit.</td></tr>
+          <tr><td class="repo">cachix/devenv · ruff · biome · ripgrep · fd · fzf · jq</td><td class="num">todos activos</td><td>Base. <code>ripgrep</code> ya lo usa Claude Code internamente.</td></tr>
+          <tr><td class="repo dead">direnv/direnv</td><td class="num dead">146 d</td><td>Maduro; <code>mise</code> cubre lo mismo con más movimiento.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </details>
+
+  <details>
+    <summary><span>H · Observabilidad y evaluación</span><span class="top">empieza por el OTEL nativo</span></summary>
+    <div class="dbody">
+      <div class="tablewrap"><table>
+        <thead><tr><th>Repo</th><th class="num">Actividad</th><th>Licencia</th><th>Veredicto</th></tr></thead>
+        <tbody>
+          <tr><td class="repo"><strong>OTEL nativo de Claude Code</strong></td><td class="num">—</td><td>—</td><td><strong>Empieza aquí.</strong> Spans por petición y por herramienta, métricas de tokens y coste, eventos por OTLP. No necesitas ningún repo para tener trazas.</td></tr>
+          <tr><td class="repo">comet-ml/opik</td><td class="num">1 591 tests · 82 CI</td><td><strong>Apache-2.0</strong></td><td><strong>Mi recomendación para self-host.</strong> Único de los tres grandes con licencia permisiva en todo el repositorio.</td></tr>
+          <tr><td class="repo">langfuse/langfuse</td><td class="num">33 563 ★ · ≥100/30d</td><td>MIT + <code>ee/</code></td><td>El más adoptado y mejor integrado. Propiedad de ClickHouse, Inc. desde enero de 2026.</td></tr>
+          <tr><td class="repo">Arize-ai/phoenix</td><td class="num">11 151 ★</td><td><strong>Elastic 2.0</strong></td><td>Técnicamente excelente. <strong>No es software libre OSI.</strong></td></tr>
+          <tr><td class="repo">UKGovernmentBEIS/inspect_ai</td><td class="num">580/30d · 104 autores · 780 tests</td><td>MIT</td><td><strong>La joya del informe.</strong> Framework de evaluación del AI Safety Institute británico. Para medir de verdad, no medir bonito.</td></tr>
+          <tr><td class="repo">confident-ai/deepeval</td><td class="num">1 615/año · 775 tests</td><td>Apache-2.0</td><td>Evaluación tipo pytest. Muy activo.</td></tr>
+          <tr><td class="repo">open-telemetry/semantic-conventions</td><td class="num">48/30d</td><td>Apache-2.0</td><td>Convenciones GenAI. Léelas antes de inventarte nombres de atributos.</td></tr>
+          <tr><td class="repo dead">Helicone · AgentOps · terminal-bench · openllmetry</td><td class="num dead">2/90d · 1/90d · 1/90d · 20/90d</td><td>—</td><td>Parándose.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </details>
+
+  <details>
+    <summary><span>I · Context engineering</span><span class="top">mejor: repomix + serena</span></summary>
+    <div class="dbody">
+      <div class="tablewrap"><table>
+        <thead><tr><th>Repo</th><th class="num">Actividad</th><th>Veredicto</th></tr></thead>
+        <tbody>
+          <tr><td class="repo">yamadashy/repomix</td><td class="num">28 028 ★ · 188 tests</td><td><strong>El mejor empaquetador repo → contexto.</strong> Su modo MCP tiene <code>--sandbox</code>: confina las herramientas de fichero, rechaza rutas absolutas y desactiva el empaquetado remoto. De las pocas herramientas con seguridad por diseño.</td></tr>
+          <tr><td class="repo">oraios/serena</td><td class="num">117/30d</td><td>Context engineering real: en vez de comprimir 400 líneas, lee solo el símbolo que importa.</td></tr>
+          <tr><td class="repo">ast-grep/ast-grep</td><td class="num">49/30d</td><td>Búsqueda y reescritura por AST. Mucho más preciso que regex.</td></tr>
+          <tr><td class="repo">upstash/context7</td><td class="num">61 191 ★ · 54 issues</td><td>Documentación por versión de librería. <strong>Es un servicio alojado:</strong> tus consultas salen a sus servidores. <span class="chip warn">privacidad</span></td></tr>
+          <tr><td class="repo dead">microsoft/LLMLingua</td><td class="num dead">301 d</td><td>Compresión de prompts muy citada, sin mantenimiento.</td></tr>
+          <tr><td class="repo dead">zilliztech/claude-context · code2prompt · files-to-prompt</td><td class="num dead">42 d / 0 tests · 68 d · 552 d</td><td>Menos maduros o terminados.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </details>
+
+  <details>
+    <summary><span>J · Multimodal · web · audio</span><span class="top">mejor: docling + chrome-devtools-mcp</span></summary>
+    <div class="dbody">
+      <div class="tablewrap"><table>
+        <thead><tr><th>Repo</th><th class="num">Actividad</th><th>Veredicto</th></tr></thead>
+        <tbody>
+          <tr><td class="repo">ChromeDevTools/chrome-devtools-mcp</td><td class="num">49 646 ★ · ≥100/30d</td><td><strong>Mejor MCP de navegador.</strong> Mantenido por el equipo de Chrome DevTools: trazas de rendimiento, red y consola, no solo clics.</td></tr>
+          <tr><td class="repo">microsoft/playwright-mcp</td><td class="num">22/90d</td><td>Sólido y oficial. Ritmo más lento.</td></tr>
+          <tr><td class="repo">browser-use/browser-use</td><td class="num">1 859/año · 115 autores</td><td>Navegación autónoma. Potente y <strong>de alto riesgo</strong>. <span class="chip avoid">VM desechable</span></td></tr>
+          <tr><td class="repo">ggml-org/whisper.cpp</td><td class="num">≥100/30d · MIT</td><td>Transcripción <strong>100 % local</strong>. Cero fuga de audio.</td></tr>
+          <tr><td class="repo">trycua/cua</td><td class="num">102 CI · 407 tests</td><td>Computer-use en VMs aisladas. Ingeniería seria.</td></tr>
+          <tr><td class="repo">opendatalab/MinerU</td><td class="num">1 037/año · AGPL</td><td>PDF científicos complejos. Licencia restrictiva.</td></tr>
+          <tr><td class="repo dead">faster-whisper · openai/whisper · OmniParser · whisperX · markitdown</td><td class="num dead">279 d · 2/90d · 2/90d · 4/90d · 37/año</td><td>Parados o desacelerando fuerte. Docling supera a markitdown.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </details>
+</section>
+
+<section id="top25">
+  <h2>04 — Ranking global</h2>
+  <p class="h2sub">Top 25 sobre 100 puntos</p>
+  <p class="lede">Impacto 20 · Calidad técnica 15 · Mantenimiento 10 · Seguridad 15 · Compatibilidad 10 · Evidencia 10 · Documentación 5 · Comunidad 5 · Integración 5 · Coste 5.</p>
+  <div class="callout"><p><strong>Regla anti-hype:</strong> ninguna puntuación alta compensa un problema grave de seguridad. Por eso <code>ruvnet/ruflo</code> (66 k ★) y <code>affaan-m/ECC</code> (241 k ★) no están aquí, y sí está <code>safedep/vet</code> con 1 096 ★.</p></div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th class="num">#</th><th>Repositorio</th><th>Para qué</th><th class="num">Puntuación</th></tr></thead>
+      <tbody id="rank"></tbody>
+    </table>
+  </div>
+  <p><strong>A un punto del corte:</strong> <code>osv-scanner</code> 74 · <code>gitleaks</code> 73 · <code>LightRAG</code> 72 · <code>ast-grep</code> 72 · <code>whisper.cpp</code> 72 · <code>pre-commit</code> 72 · <code>zotero-mcp</code> 71 · <code>mise</code> 71 · <code>local-deep-research</code> 70 · <code>dspy</code> 70 · <code>simonw/llm</code> 70.</p>
+  <p><strong>Por qué el nº 1 no es una herramienta:</strong> el mayor riesgo de tu entorno no es que le falte una capacidad, sino que instales la capacidad equivocada. Un marketplace oficial con allowlist por owner reduce más superficie de ataque que cualquier herramienta de seguridad añadida después.</p>
+</section>
+
+<section id="fichas">
+  <h2>05 — Máximo impacto</h2>
+  <p class="h2sub">Los diez que más mejorarían tu Claude</p>
+
+  <div class="ficha">
+    <h4>1 · Serena <span class="chip core">core</span></h4>
+    <p class="url"><a href="https://github.com/oraios/serena">github.com/oraios/serena</a> — context engineering / navegación semántica de código (MCP)</p>
+    <p>Expone a Claude las herramientas reales de un IDE — buscar símbolo, encontrar referencias, editar el cuerpo de una función — vía language servers, para unos 60 lenguajes. Resuelve el problema de que el agente lea ficheros de 400 líneas para cambiar una función: menos tokens, ediciones más precisas y capacidad real de trabajar en monorepos donde la búsqueda por texto se ahoga.</p>
+    <dl class="kv">
+      <dt>Madurez</dt><dd>28 465 ★ · creado mar-2025 · 423 commits/año · 52 autores · 704 ficheros de test</dd>
+      <dt>Licencia</dt><dd>MIT</dd>
+      <dt>Permisos</dt><dd>Lectura <strong>y escritura</strong> de tu código; lanza subprocesos (language servers)</dd>
+      <dt>Privacidad</dt><dd>Local — el código no sale de tu máquina por culpa de Serena</dd>
+      <dt>Riesgo</dt><dd>Medio — edición incorrecta, no exfiltración</dd>
+      <dt>Evidencia</dt><dd>Autoevaluación del proyecto con ~20 tareas <em>[no independiente]</em>; consenso en reseñas de que aporta en repos grandes</dd>
+    </dl>
+    <div class="proscons">
+      <div class="pro"><b>A favor</b>La mejora individual más grande en bases de código medianas y grandes. Ahorra dinero.</div>
+      <div class="con"><b>En contra</b>En proyectos de menos de 2 000 líneas no compensa el coste de contexto de sus herramientas. Instálalo desde el Quick Start oficial, nunca desde un marketplace.</div>
+    </div>
+  </div>
+
+  <div class="ficha">
+    <h4>2 · Sandbox Runtime (<code>srt</code>) <span class="chip core">core</span></h4>
+    <p class="url"><a href="https://github.com/anthropic-experimental/sandbox-runtime">github.com/anthropic-experimental/sandbox-runtime</a> — seguridad / aislamiento</p>
+    <p>Ejecuta cualquier proceso con restricciones de sistema de ficheros y de red a nivel de SO, sin contenedor. Resuelve lo que las herramientas anti-inyección <em>no</em> pueden: limitar lo que el código <em>puede hacer</em> en vez de adivinar si es malicioso. Te permite meter servidores MCP de terceros en una jaula; hoy, un MCP cualquiera corre con tus permisos completos.</p>
+    <dl class="kv">
+      <dt>Procedencia</dt><dd>Es el motor de sandbox de Claude Code, publicado aparte por Anthropic</dd>
+      <dt>Madurez</dt><dd>4 990 ★ · 52 commits/30 d · 475/año · 189 tests · <strong>beta research preview declarada</strong></dd>
+      <dt>Licencia</dt><dd>Apache-2.0</dd>
+      <dt>Plataformas</dt><dd><code>sandbox-exec</code> en macOS · <code>bubblewrap</code> en Linux · Windows requiere WSL2</dd>
+      <dt>Riesgo</dt><dd>Bajo — reduce riesgo. El peligro real es la falsa seguridad si se configura mal</dd>
+    </dl>
+  </div>
+
+  <div class="ficha">
+    <h4>3 · Snyk Agent Scan <span class="chip core">core</span></h4>
+    <p class="url"><a href="https://github.com/invariantlabs-ai/mcp-scan">github.com/invariantlabs-ai/mcp-scan</a> → redirige a <code>snyk/agent-scan</code> — auditoría de componentes de agente</p>
+    <p>Descubre y escanea los agentes, servidores MCP <strong>y skills</strong> instalados en tu máquina buscando inyecciones de prompt y vulnerabilidades. Convierte «instalé 183 skills de un repo viral» en una decisión informada.</p>
+    <dl class="kv">
+      <dt>Actividad</dt><dd>49 commits/30 d · 175/90 d · 339 tests · <strong>solo 9 issues abiertos</strong></dd>
+      <dt>Licencia</dt><dd>Apache-2.0 · instalación por <code>uvx</code> o binario; <strong>no hay paquete npm oficial</strong></dd>
+      <dt>Avisos del propio proyecto</dt><dd>Salida de CLI experimental · <strong>v0.5.x marcada para deprecación</strong></dd>
+      <dt>Sin verificar</dt><dd>Si la versión instalada envía telemetría a Snyk</dd>
+    </dl>
+    <div class="proscons">
+      <div class="pro"><b>A favor</b>El único escáner de este tipo vivo y con respaldo corporativo.</div>
+      <div class="con"><b>En contra</b><strong>No detecta ataques payload-less tipo SCH</strong> (0,00 % de detección). Úsalo <em>con</em> sandbox, no en su lugar.</div>
+    </div>
+  </div>
+
+  <div class="ficha">
+    <h4>4 · Marketplace oficial de plugins <span class="chip core">core</span></h4>
+    <p class="url"><a href="https://github.com/anthropics/claude-plugins-official">github.com/anthropics/claude-plugins-official</a> — distribución</p>
+    <p>Skills, agentes, hooks y MCP empaquetados y publicados por Anthropic. Te da capacidades nuevas con una cadena de suministro de riesgo drásticamente menor: <code>/plugin install &lt;plugin&gt;@claude-plugins-official</code>.</p>
+    <dl class="kv">
+      <dt>Actividad</dt><dd>≥105 commits/30 d · 456 ficheros · 9 workflows de CI</dd>
+      <dt>Riesgo</dt><dd>Medio pero acotado — un plugin sigue siendo código, con procedencia verificable y allowlist/blocklist por owner</dd>
+      <dt>Contrapartida</dt><dd>Catálogo más pequeño que el ecosistema salvaje. Eso es una característica, no un defecto</dd>
+    </dl>
+  </div>
+
+  <div class="ficha">
+    <h4>5 · Repomix <span class="chip ok">high value</span></h4>
+    <p class="url"><a href="https://github.com/yamadashy/repomix">github.com/yamadashy/repomix</a> — context engineering</p>
+    <p>Empaqueta un repositorio (o partes) en un único fichero optimizado para LLM, con conteo de tokens y filtros. Control explícito de qué entra en contexto en revisiones globales, auditorías y migraciones.</p>
+    <dl class="kv">
+      <dt>Detalle que lo distingue</dt><dd>En modo MCP acepta <code>--sandbox [dir]</code>: confina las herramientas de fichero, <strong>rechaza rutas absolutas</strong> y desactiva empaquetado remoto y generación de skills</dd>
+      <dt>Actividad</dt><dd>116/30 d · 509/año · 188 tests · 19 workflows · MIT</dd>
+      <dt>Contrapartida</dt><dd>Solapa con la lectura nativa de ficheros; su valor está en el empaquetado dirigido, no en el uso diario</dd>
+    </dl>
+  </div>
+
+  <div class="ficha">
+    <h4>6 · Docling <span class="chip ok">high value</span></h4>
+    <p class="url"><a href="https://github.com/docling-project/docling">github.com/docling-project/docling</a> — documentos</p>
+    <p>Convierte PDF, DOCX, PPTX, XLSX y HTML a Markdown/JSON conservando estructura y tablas. Hoy los PDF complejos son el punto ciego más común de un agente; Docling los convierte en algo que Claude entiende bien.</p>
+    <dl class="kv">
+      <dt>Actividad</dt><dd>65 525 ★ · ≥100/30 d · <strong>1 154 ficheros de test</strong> · 39 autores · MIT · proyecto IBM</dd>
+      <dt>Seguridad</dt><dd>Procesa ficheros no confiables → el parser es superficie de ataque. Ejecútalo dentro de <code>srt</code> si el origen es dudoso</dd>
+      <dt>Contrapartida</dt><dd>Dependencias pesadas (modelos de visión) si activas OCR</dd>
+    </dl>
+  </div>
+
+  <div class="ficha">
+    <h4>7 · Chrome DevTools MCP <span class="chip warn">alto riesgo</span></h4>
+    <p class="url"><a href="https://github.com/ChromeDevTools/chrome-devtools-mcp">github.com/ChromeDevTools/chrome-devtools-mcp</a> — web y depuración</p>
+    <p>Da a Claude las DevTools de Chrome: red, consola, trazas de rendimiento y DOM, no solo clics. Depuración de front-end real en vez de adivinar por qué una página tarda cuatro segundos.</p>
+    <dl class="kv">
+      <dt>Actividad</dt><dd>49 646 ★ · ≥100/30 d · 103 tests · 22 autores · Apache-2.0 · equipo de Chrome DevTools</dd>
+      <dt>Riesgo crítico</dt><dd>Cualquier MCP de navegador introduce <strong>inyección de prompt desde el contenido web</strong>: una página puede llevar instrucciones dirigidas a tu agente</dd>
+      <dt>Condición de uso</dt><dd>Perfil de navegador dedicado, <strong>sin sesiones autenticadas sensibles</strong></dd>
+    </dl>
+  </div>
+
+  <div class="ficha">
+    <h4>8 · Spec Kit <span class="chip ok">high value</span></h4>
+    <p class="url"><a href="https://github.com/github/spec-kit">github.com/github/spec-kit</a> — método de trabajo</p>
+    <p>Flujo dirigido por especificación: especificar → planificar → tareas → implementar. Ataca la causa número uno de malos resultados con agentes: empezar a codificar antes de haber definido el problema. Es la parte útil de la metodología de <code>superpowers</code> <strong>sin el coste permanente de tokens</strong>, porque lo invocas cuando lo necesitas.</p>
+    <dl class="kv">
+      <dt>Actividad</dt><dd>131 139 ★ · ≥100/30 d · 25 workflows · 162 tests · MIT · mantenido por GitHub</dd>
+      <dt>Riesgo</dt><dd>Bajo — plantillas y comandos</dd>
+      <dt>Contrapartida</dt><dd>Ceremonia excesiva para cambios pequeños</dd>
+    </dl>
+  </div>
+
+  <div class="ficha">
+    <h4>9 · Un sistema de memoria — uno, no dos</h4>
+    <p>Comparación directa entre las dos opciones que sobreviven al análisis:</p>
+    <div class="tablewrap" style="margin-top:12px">
+      <table>
+        <thead><tr><th></th><th>basic-memory</th><th>mcp-memory-service</th></tr></thead>
+        <tbody>
+          <tr><td>Modelo de datos</td><td>Markdown local + wikilinks</td><td>SQLite-vec + grafo causal</td></tr>
+          <tr><td>Licencia</td><td><strong>AGPL-3.0</strong> (copyleft fuerte)</td><td><strong>Apache-2.0</strong></td></tr>
+          <tr><td>Legible y editable por ti</td><td><strong>Sí, es texto plano</strong></td><td>No directamente</td></tr>
+          <tr><td class="num">Commits / 30 d</td><td class="num">≥100</td><td class="num">174</td></tr>
+          <tr><td class="num">Ficheros de test</td><td class="num">412</td><td class="num">306</td></tr>
+          <tr><td class="num">Issues abiertos</td><td class="num">72</td><td class="num"><strong>13</strong></td></tr>
+          <tr><td>Presión comercial</td><td>Alta (upsell de nube en el README)</td><td>Baja</td></tr>
+          <tr><td>Mejor para</td><td>Que tu conocimiento siga siendo tuyo y portable</td><td>Backend compartido entre varios agentes</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>Recomendación:</strong> <code>basic-memory</code> si valoras que la memoria sea texto que puedas leer, versionar en git y llevarte; <code>mcp-memory-service</code> si la AGPL te bloquea o necesitas servir memoria a varias herramientas por REST. Riesgo de ambos: medio — la <strong>memoria envenenada es un vector de inyección persistente</strong>.</p>
+  </div>
+
+  <div class="ficha">
+    <h4>10 · Observabilidad: OTEL nativo → Opik <span class="chip ok">high value</span></h4>
+    <p class="url"><a href="https://github.com/comet-ml/opik">github.com/comet-ml/opik</a> — medición</p>
+    <p>Claude Code ya emite spans por petición y por herramienta, métricas de tokens y coste, y eventos estructurados vía OTLP. Solo falta dónde mirarlos. Deja de ser una caja negra: ves coste por sesión, latencia por herramienta, dónde se van los tokens y qué llamadas fallan.</p>
+    <dl class="kv">
+      <dt>Por qué Opik</dt><dd><strong>Apache-2.0 en todo el repositorio.</strong> Langfuse tiene núcleo MIT con <code>ee/</code> restringido y pertenece a ClickHouse, Inc.; Phoenix es Elastic License 2.0, que no es libre OSI</dd>
+      <dt>Actividad</dt><dd>≥100/30 d · 1 591 tests · 82 workflows · 21 577 ★</dd>
+      <dt>Riesgo</dt><dd>Las trazas contienen prompts y salidas → <strong>tu código y posibles secretos</strong>. Self-host obligatorio si es sensible; limita con <code>CLAUDE_CODE_OTEL_CONTENT_MAX_LENGTH</code></dd>
+      <dt>Complemento sin riesgo</dt><dd><code>ccusage</code> para coste — solo lee JSONL locales, sin red</dd>
+    </dl>
+  </div>
+</section>
+
+<section id="evitar">
+  <h2>06 — No recomendados</h2>
+  <p class="h2sub">Famosos con problemas, y muertos que se siguen citando</p>
+
+  <div class="finding sev-crit">
+    <h4><span class="idx">⛔</span><span>ruvnet/claude-flow → ruflo · 66 205 ★</span></h4>
+    <p><strong>Las funciones anunciadas no existen.</strong> Auditoría independiente (abr-2026) + medición propia: 6 806 contribuciones de una sola persona y renombrados múltiples. <strong>Motivo suficiente por sí solo:</strong> invoca <code>--dangerously-skip-permissions</code>, desactivando la capa de permisos que es tu principal defensa contra prompt injection.</p>
+    <p><em>Contrapunto honesto:</em> el repositorio está genuinamente activo (118 commits/30 d) y hay usuarios satisfechos en sus discusiones. Pero «activo» no es «funciona», y la carga de la prueba está en el proyecto.</p>
+  </div>
+
+  <div class="finding sev-warn">
+    <h4><span class="idx">⚠</span><span>affaan-m/ECC · 241 210 ★</span></h4>
+    <p>El original <strong>no es malware</strong> y su autor tiene credenciales reales — por eso no está en ⛔. Pero 48 agentes + 183 skills + hooks globales instalados de golpe es exactamente el patrón que produce el 26,1 % de vulnerabilidad del estudio de arXiv, y su fama ya ha generado un clon con dropper.</p>
+    <p><strong>Si lo quieres:</strong> clona, lee <code>hooks/</code>, <code>.mcp.json</code> y el instalador, y copia solo las 3-5 skills que te sirvan. <strong>No ejecutes el instalador.</strong></p>
+  </div>
+
+  <div class="finding sev-warn">
+    <h4><span class="idx">⚠</span><span>obra/superpowers · 277 365 ★ — recomendado con condiciones</span></h4>
+    <p>Está en el top 25 (nº 22), pero merece su matiz. <a href="https://github.com/obra/superpowers/issues/190">Issue #190</a>: todas las skills se cargaban completas al inicio — <strong>22 448 tokens = 11 % de una ventana de 200 k</strong>, frente a los ~1 400 esperados con carga progresiva. <em>El autor lo cerró en dos días</em> y dedicó la v6.1.0 a comprimir el bootstrap: señal de mantenimiento serio.</p>
+    <p>Críticas de Hacker News (jun-2026): «huge token guzzler», rigidez en trabajo exploratorio, y el argumento de que los modelos actuales ya planifican bien sin harness. A favor: una comparación controlada de la comunidad reportó 9 % más barato y 14 % menos tokens en tareas no triviales — pero más caro en las simples. <em>[Una sola medición comunitaria, no replicada.]</em></p>
+    <p><strong>Veredicto:</strong> instálalo si haces features de varias horas; desactívalo para tareas cortas. No es un «siempre encendido».</p>
+  </div>
+
+  <div class="finding sev-warn">
+    <h4><span class="idx">⚠</span><span>Privacidad: context7 · claude-code-router · memvid</span></h4>
+    <p><strong>context7</strong> (61 191 ★) es un servicio alojado: cada consulta sale de tu máquina. <strong>claude-code-router</strong> está vivo y es competente, pero su función <em>es</em> enviar tus prompts y tu código a terceros — legítimo si lo has decidido, inaceptable si no lo has pensado. <strong>memvid</strong>: idea viral, 4 commits en 90 días, propuesta nunca validada frente a alternativas convencionales.</p>
+  </div>
+
+  <h3>Muertos o parados que se siguen recomendando</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Repositorio</th><th class="num">Días sin commits</th><th>Por qué importa</th></tr></thead>
+      <tbody id="dead"></tbody>
+    </table>
+  </div>
+
+  <h3>Categorías enteras donde no me metería</h3>
+  <ol>
+    <li><strong>Frameworks multi-agente generalistas</strong> encima de Claude Code. Ya orquesta subagentes de forma nativa, con anidación configurable y hasta 20 concurrentes. Otro orquestador multiplica complejidad sin capacidad nueva.</li>
+    <li><strong>Mega-colecciones de skills de terceros.</strong> Coste esperado (26,1 % de vulnerabilidad, ataques SCH indetectables) mayor que el beneficio. Copia skills sueltas, revisadas.</li>
+    <li><strong>Listas awesome como fuente de decisión.</strong> Sirven para descubrir que algo existe; nunca como aval.</li>
+  </ol>
+</section>
+
+<section id="arquitectura">
+  <h2>07 — Arquitectura</h2>
+  <p class="h2sub">Ocho piezas en el núcleo, deliberadamente</p>
+  <div class="callout"><p><strong>Principio:</strong> cada capa que añadas debe darte una capacidad que Claude Code no tiene, no una versión distinta de una que ya tiene.</p></div>
+  <p>Claude Code en agosto de 2026 ya trae sandbox de Bash con aislamiento de SO y allowlist de red, skills con carga progresiva, marketplace con allow/blocklist, subagentes anidados, auto-memoria por repo, hooks, OTEL nativo y <code>/security-review</code>. Eso es la base — no la dupliques.</p>
+
+  <div class="arch">
+    <div class="base layer">
+      <div class="name">Capa 0 · nativo</div>
+      <div class="items">
+        <span class="pill">sandbox Bash</span><span class="pill">skills</span><span class="pill">plugins</span>
+        <span class="pill">subagentes</span><span class="pill">auto-memoria</span><span class="pill">hooks</span>
+        <span class="pill">OTEL</span><span class="pill">/security-review</span>
+      </div>
+    </div>
+    <div class="layer"><div class="name">Contención</div><div class="items"><span class="pill core">srt</span><span class="pill core">snyk/agent-scan</span></div></div>
+    <div class="layer"><div class="name">Código</div><div class="items"><span class="pill core">serena</span><span class="pill core">github-mcp-server</span><span class="pill">repomix --sandbox</span><span class="pill">ast-grep</span></div></div>
+    <div class="layer"><div class="name">Método</div><div class="items"><span class="pill">spec-kit</span><span class="pill">superpowers (selectivo)</span></div></div>
+    <div class="layer"><div class="name">Conocimiento</div><div class="items"><span class="pill">docling</span><span class="pill">basic-memory <em>o</em> mcp-memory-service</span><span class="pill">cognee / graphiti (opcional)</span></div></div>
+    <div class="layer"><div class="name">Mundo exterior</div><div class="items"><span class="pill">chrome-devtools-mcp (perfil aislado)</span><span class="pill">whisper.cpp</span></div></div>
+    <div class="layer"><div class="name">Medición</div><div class="items"><span class="pill core">ccusage</span><span class="pill">opik self-host</span><span class="pill">inspect_ai / promptfoo</span></div></div>
+    <div class="layer"><div class="name">Entorno</div><div class="items"><span class="pill core">uv</span><span class="pill">mise</span><span class="pill core">gitleaks + pre-commit</span><span class="pill">osv-scanner · safedep/vet</span></div></div>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <caption>Clasificación</caption>
+      <thead><tr><th>Nivel</th><th>Piezas</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip core">core</span> imprescindibles</td><td>claude-plugins-official · sandbox-runtime · snyk/agent-scan · serena · github-mcp-server · ccusage · uv · gitleaks+pre-commit</td></tr>
+        <tr><td><span class="chip ok">high value</span></td><td>spec-kit · repomix · docling · chrome-devtools-mcp · OTEL→opik · osv-scanner+vet · superpowers selectivo</td></tr>
+        <tr><td><span class="chip">optional</span></td><td>basic-memory <em>o</em> mcp-memory-service · cognee <em>o</em> graphiti · LightRAG · gpt-researcher · zotero-mcp · inspect_ai+promptfoo · semgrep · whisper.cpp · ast-grep</td></tr>
+        <tr><td><span class="chip warn">experimental</span></td><td>MemOS · trycua/cua · microsandbox · dspy · langextract · deer-flow · local-deep-research · letta-code</td></tr>
+        <tr><td><span class="chip avoid">avoid</span></td><td>ruflo · instalador completo de ECC · protectai/* · mcp-shield · mcp-gateway · memvid · frameworks multi-agente encima de Claude Code</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>Cuenta final: 8 piezas en core, 7 en high value.</strong> Con más de 10 000 servidores MCP públicos, mantener 3-6 activos a la vez es lo que separa un entorno rápido de uno lento.</p>
+</section>
+
+<section id="plan">
+  <h2>08 — Implementación</h2>
+  <p class="h2sub">Cuatro fases, ninguna sin tu autorización</p>
+
+  <div class="phase">
+    <div class="n">Fase 0</div>
+    <div>
+      <h4>Antes de instalar nada · 30 min · riesgo nulo</h4>
+      <ol>
+        <li>Ejecutar <code>/doctor</code> y <code>/context</code> y anotar el consumo base de arranque. <strong>Sin línea base no sabrás si algo empeora.</strong></li>
+        <li>Revisar <code>/sandbox</code>: si el sandbox de Bash está activo y en qué modo. En Linux/WSL2, verificar dependencias.</li>
+        <li>Poner <code>~/.claude/</code> bajo control de versiones. <strong>Esto es lo que hace reversible todo lo demás.</strong></li>
+        <li>Anotar el gasto actual con <code>npx ccusage</code> — no instala nada permanente.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="n">Fase 1</div>
+    <div>
+      <h4>Bajo riesgo, alto retorno · 1-2 h</h4>
+      <p><code>uv</code> → <code>ccusage</code> como herramienta habitual → <code>snyk/agent-scan</code> vía <code>uvx</code> y <strong>escaneo del estado actual</strong> → <code>gitleaks</code> + <code>pre-commit</code> en repos activos → explorar el marketplace oficial <em>sin instalar todavía</em> → leer la spec de <code>agentskills</code>.</p>
+      <p><strong>Éxito:</strong> sabes qué tienes instalado, cuánto te cuesta y si algo de lo que ya usas está marcado como riesgo.</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="n">Fase 2</div>
+    <div>
+      <h4>Mejoras importantes · medio día</h4>
+      <p><code>serena</code> por el Quick Start oficial → <code>github-mcp-server</code> con <strong>token de permisos mínimos</strong> (repos concretos, no <code>repo</code> completo) → <code>srt</code> y envolver con él los MCP de terceros → <code>spec-kit</code> en un proyecto piloto → medir de nuevo con <code>/context</code> y <code>ccusage</code>.</p>
+      <p><strong>Regla de la fase:</strong> instala <em>uno cada vez</em> y mide entre pasos. Si instalas cuatro cosas juntas no sabrás cuál causó la regresión.</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="n">Fase 3</div>
+    <div>
+      <h4>Funcionalidades avanzadas · 1-2 días</h4>
+      <p><code>repomix</code> (siempre con <code>--sandbox</code> en modo MCP) → <code>docling</code> en entorno <code>uv</code> aislado → <code>chrome-devtools-mcp</code> con perfil de navegador dedicado y sin sesiones sensibles → OTEL nativo hacia <code>opik</code> self-hosted → elegir <strong>un</strong> sistema de memoria y probarlo dos semanas en un solo dominio → <code>osv-scanner</code> + <code>safedep/vet</code>.</p>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="n">Fase 4</div>
+    <div>
+      <h4>Experimental · solo con sandbox y sin datos reales</h4>
+      <p><code>superpowers</code> activado selectivamente — medir <code>/context</code> antes y después, desactivar si el arranque sube más de 5 k tokens sin beneficio. <code>cognee</code>/<code>graphiti</code> sobre corpus de prueba en contenedor aislado, nunca datos de cliente. Suite de regresión con <code>inspect_ai</code>/<code>promptfoo</code>. <code>browser-use</code> o <code>trycua/cua</code> <strong>exclusivamente en VM desechable, nunca con credenciales reales</strong>.</p>
+    </div>
+  </div>
+
+  <div class="callout danger">
+    <p><strong>Lo que no haría en ninguna fase:</strong> ejecutar un instalador <code>curl | bash</code> de terceros · instalar colecciones completas de skills sin leer sus hooks · usar <code>--dangerously-skip-permissions</code> fuera de un contenedor desechable · activar más de 6 servidores MCP simultáneos · instalar dos herramientas de la misma categoría «para comparar» sin desinstalar una.</p>
+  </div>
+</section>
+
+<section id="riesgo">
+  <h2>09 — Matriz de riesgo</h2>
+  <p class="h2sub">Beneficio · complejidad · riesgo · permisos · reversibilidad</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Herramienta</th><th>Beneficio</th><th>Compl.</th><th>Riesgo</th><th>Permisos que exige</th><th>Reversibilidad</th></tr></thead>
+      <tbody id="risk"></tbody>
+    </table>
+  </div>
+  <h3>Reglas transversales de permisos</h3>
+  <ol>
+    <li><strong>Tokens con el mínimo alcance.</strong> El token de GitHub para el MCP apunta a repos concretos, no lleva <code>repo</code> completo ni <code>admin:*</code>.</li>
+    <li><strong>Un MCP no confiable = un <code>srt</code> alrededor.</strong> Sin excepciones para servidores que tocan red.</li>
+    <li><strong>Navegador = perfil desechable.</strong> Nunca el perfil con tus sesiones de banco, correo o GitHub.</li>
+    <li><strong>Memoria revisable.</strong> Prefiere formatos que puedas leer: si alguien la envenena, quieres poder verlo.</li>
+    <li><strong>Trazas = datos sensibles.</strong> Observabilidad autoalojada si tu código es confidencial.</li>
+  </ol>
+</section>
+
+<section id="fuentes">
+  <h2>10 — Fuentes</h2>
+  <p class="h2sub">Todo lo citado, enlazado</p>
+  <div class="srcgrid">
+    <p><b>Documentación oficial</b><br>
+    <a href="https://code.claude.com/docs/en/changelog">Changelog de Claude Code</a> · <a href="https://code.claude.com/docs/en/skills">Skills</a> · <a href="https://code.claude.com/docs/en/plugins">Plugins</a> · <a href="https://code.claude.com/docs/en/sandboxing">Sandboxing</a> · <a href="https://code.claude.com/docs/en/mcp">MCP</a> · <a href="https://code.claude.com/docs/en/memory">Memoria</a> · <a href="https://code.claude.com/docs/en/agent-sdk/observability">Observabilidad OTEL</a></p>
+    <p><a href="https://agentskills.io">Agent Skills — estándar abierto</a> · <a href="https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices">MCP — Security Best Practices</a> · <a href="https://academy.claude.com/courses/ai-fluency-framework-foundations">AI Fluency (Anthropic)</a> · <a href="https://aifluencyframework.org/">Materiales abiertos del marco 4D</a></p>
+    <p><b>Papers y estudios</b><br>
+    <a href="https://arxiv.org/abs/2601.10338">Agent Skills in the Wild — arXiv:2601.10338</a> (42 447 skills, 26,1 % vulnerables)<br>
+    <a href="https://arxiv.org/abs/2605.14460">Payload-less Skills / SCH — arXiv:2605.14460</a> (77,67 % éxito, 0,00 % detección)<br>
+    <a href="https://arxiv.org/abs/2602.08004">Data-Driven Analysis of Claude Skills — arXiv:2602.08004</a><br>
+    <a href="https://arxiv.org/pdf/2606.00448">When Safe Skills Collide — arXiv:2606.00448</a><br>
+    <a href="https://media.defense.gov/2026/Jun/02/2003943289/-1/-1/0/CSI_MCP_SECURITY.PDF">NSA/CISA — MCP Security Design (jun-2026)</a><br>
+    <a href="https://cheatsheetseries.owasp.org/cheatsheets/MCP_Security_Cheat_Sheet.html">OWASP — MCP Security Cheat Sheet</a></p>
+    <p><b>Auditorías independientes</b><br>
+    <a href="https://gist.github.com/roman-rr/ed603b676af019b8740423d2bb8e4bf6">Auditoría técnica de Ruflo / Claude-Flow (abr-2026)</a><br>
+    <a href="https://dev.to/joergmichno/we-audited-the-viral-213k-star-everything-claude-code-repo-and-found-a-malware-clone-in-the-wild-14hb">Auditoría de ECC y clon con malware (jun-2026)</a><br>
+    <a href="https://github.com/obra/superpowers/issues/190">Superpowers #190 — 22 k tokens al arranque</a><br>
+    <a href="https://www.joanmedia.dev/ai-blog/the-honest-tradeoffs-of-superpowers-token-costs-overkill-and-the-alternatives">Los compromisos honestos de Superpowers (jul-2026)</a></p>
+    <p><b>La disputa de benchmarks de memoria — ambos lados</b><br>
+    <a href="https://github.com/getzep/zep-papers/issues/5">Mem0 — Revisiting Zep's 84 % LoCoMo Claim</a><br>
+    <a href="https://blog.getzep.com/lies-damn-lies-statistics-is-mem0-really-sota-in-agent-memory/">Zep — Is Mem0 Really SOTA? (con corrección publicada)</a><br>
+    <a href="https://dev.to/gde03/the-ai-memory-benchmark-everyone-quotes-forbids-saying-i-dont-know-o1n">Crítica independiente al propio benchmark LoCoMo</a></p>
+    <p><b>Gobernanza y licencias</b><br>
+    <a href="https://clickhouse.com/blog/clickhouse-acquires-langfuse-open-source-llm-observability">ClickHouse adquiere Langfuse (ene-2026)</a> · <a href="https://langfuse.com/blog/joining-clickhouse">nota de Langfuse</a><br>
+    Licencias verificadas descargando el fichero <code>LICENSE</code>: Phoenix = Elastic 2.0 · Langfuse = MIT + <code>ee/</code> · basic-memory y trufflehog = AGPL-3.0 · awesome-claude-code = CC BY-NC-ND 4.0.</p>
+    <p><b>CVE citadas</b><br>
+    CVE-2025-6514 (<code>mcp-remote</code>, CVSS 9.6, RCE) · CVE-2025-59536 (Claude Code, RCE vía <code>.claude/settings.json</code>, CVSS 8.7) · CVE-2026-33032 («MCPwn», CVSS 9.8) · CVE-2026-12957/12958 (Amazon Q). <em>Recogidas de recopilaciones secundarias; verifica los detalles en la NVD antes de citarlas formalmente.</em></p>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <h3 style="margin-top:0">Qué he verificado y qué no</h3>
+    <p><strong>Verificado personalmente:</strong> fechas de commits, frecuencia de actividad, autores distintos, presencia de licencia, CI, tests y <code>SECURITY.md</code>, contenido de los ficheros <code>LICENSE</code> y <code>README</code>, renombrados y repositorios vaciados. Todo mediante clones de metadatos y descargas directas el 25 de agosto de 2026.</p>
+    <p><strong>No verificado, y así señalado en el texto:</strong> no he ejecutado ninguna herramienta, no he replicado la auditoría de Ruflo ni la de ECC, no he corrido benchmarks propios, y las cifras de estrellas e issues son las que mostraba GitHub en ese momento.</p>
+    <p><strong>Opinión razonada, no hecho:</strong> las puntuaciones del ranking y el reparto core / high value / optional. Se apoyan en las mediciones, pero los pesos son un juicio; otro analista con los mismos datos podría ordenar distinto.</p>
+    <p style="margin-top:22px; padding-top:18px; border-top:1px solid var(--rule)"><strong>No se ha instalado, ejecutado ni modificado nada en el entorno.</strong></p>
+  </div>
+</footer>
+
+<script>
+const rank=[
+ [1,"anthropics/claude-plugins-official","Marketplace oficial · descubrimiento seguro",93],
+ [2,"oraios/serena","Navegación semántica de código",91],
+ [3,"docling-project/docling","Documentos → contexto",89],
+ [4,"yamadashy/repomix","Empaquetado de repo con sandbox",88],
+ [5,"snyk/agent-scan","Escaneo de MCP y skills",87],
+ [6,"anthropic-experimental/sandbox-runtime","Aislamiento de procesos y MCP",87],
+ [7,"agentskills/agentskills","Especificación del estándar",86],
+ [8,"github/spec-kit","Desarrollo dirigido por especificación",86],
+ [9,"ChromeDevTools/chrome-devtools-mcp","Depuración web real",85],
+ [10,"github/github-mcp-server","Repos, issues y PRs",85],
+ [11,"astral-sh/uv","Entornos reproducibles y efímeros",84],
+ [12,"promptfoo/promptfoo","Evals + red teaming en CI",83],
+ [13,"ryoppippi/ccusage","Coste y uso · sin red",82],
+ [14,"semgrep/semgrep","SAST con reglas legibles",82],
+ [15,"UKGovernmentBEIS/inspect_ai","Evaluación rigurosa",82],
+ [16,"comet-ml/opik","Observabilidad · Apache-2.0 limpio",82],
+ [17,"langfuse/langfuse","Observabilidad más adoptada",81],
+ [18,"modelcontextprotocol/registry","Registro oficial de MCP",81],
+ [19,"tolkonepiu/best-of-mcp-servers","Ranking automático semanal",78],
+ [20,"safedep/vet","Paquetes maliciosos en dependencias",77],
+ [21,"basicmachines-co/basic-memory","Memoria en Markdown local",76],
+ [22,"obra/superpowers","Metodología como skills",76],
+ [23,"doobidoo/mcp-memory-service","Memoria self-hosted",75],
+ [24,"topoteretes/cognee","Grafo de conocimiento activo",74],
+ [25,"getzep/graphiti","Grafo temporal de hechos",73]];
+document.getElementById('rank').innerHTML=rank.map(([n,r,d,s])=>
+ `<tr><td class="num">${n}</td><td class="repo">${r}</td><td>${d}</td><td class="num"><span class="score"><span class="bar"><i style="width:${s}%"></i></span><span class="v">${s}</span></span></td></tr>`).join('');
+
+const dead=[
+ ["protectai/rebuff",942,"Se sigue citando como defensa contra prompt injection"],
+ ["protectai/vulnhuntr",564,"Idem, para descubrimiento de vulnerabilidades"],
+ ["simonw/files-to-prompt",552,"Herramienta minúscula y terminada; sigue funcionando"],
+ ["riseandignite/mcp-shield",486,"«Escáner de seguridad MCP» abandonado"],
+ ["slowmist/MCP-Security-Checklist",484,"Citado en artículos de 2026"],
+ ["sammcj/mcp-package-docs",403,"MCP de documentación de paquetes"],
+ ["tadata-org/fastapi_mcp",380,"Puente FastAPI → MCP"],
+ ["cyclotruc/gitingest",374,"Sustituido por repomix"],
+ ["Pimzino/claude-code-spec-workflow",352,"Sustituido por spec-kit"],
+ ["ericbuess/claude-code-project-index",348,"Sustituido por serena"],
+ ["WooooDyy/LLM-Agent-Paper-List",347,"Referencia de papers congelada"],
+ ["stanford-oval/storm",328,"Gran investigación, código detenido"],
+ ["wshobson/commands",317,"Absorbido por wshobson/agents"],
+ ["getAsterisk/claudia",313,"GUI de Claude Code muerta"],
+ ["TechNickAI/claude_telemetry",305,"Telemetría de Claude Code; el OTEL nativo lo cubre"],
+ ["microsoft/LLMLingua",301,"Compresión de prompts muy citada"],
+ ["SciPhi-AI/R2R",291,"Plataforma RAG presente en listas de 2026"],
+ ["anthropics/courses",284,"Contenido válido, repositorio congelado"],
+ ["SYSTRAN/faster-whisper",279,"Base de muchos pipelines de audio"],
+ ["harishsg993010/damn-vulnerable-MCP-server",260,"Laboratorio educativo de MCP"],
+ ["agiresearch/A-mem",255,"Paper de memoria agéntica"],
+ ["brennercruvinel/CCPlugins",322,"Colección de comandos de Claude Code"],
+ ["lasso-security/mcp-gateway",215,"«Gateway de seguridad MCP»"],
+ ["disler/claude-code-hooks-mastery",204,"Parado y sin fichero de licencia"],
+ ["anthropics/claude-code-security-review",194,"Superado por /security-review nativo"],
+ ["explodinggradients/ragas",182,"Evaluación RAG omnipresente en tutoriales"],
+ ["davidkimai/Context-Engineering",179,"Viral en X"],
+ ["stravu/crystal",179,"GUI multi-sesión de Claude Code"],
+ ["Puliczek/awesome-mcp-security",174,"Lista sin licencia, 2 ficheros"],
+ ["disler/infinite-agentic-loop",169,"Patrón viral de bucles de agentes"],
+ ["coleam00/context-engineering-intro",162,"Viral en YouTube"],
+ ["ml-tooling/best-of-generator",359,"Generador del patrón best-of"],
+ ["carlrannaberg/claudekit",146,"Toolkit de Claude Code"],
+ ["direnv/direnv",146,"Maduro; mise cubre lo mismo"],
+ ["microsoft/autogen",140,"Framework multi-agente de referencia"],
+ ["neo4j-contrib/mcp-neo4j",136,"MCP de Neo4j"],
+ ["dzhng/deep-research",135,"Viral en 2025"],
+ ["anthropics/mcpb",124,"Empaquetado de bundles MCP"],
+ ["eyaltoledano/claude-task-master",124,"422 commits el año pasado, 0 el último trimestre"],
+ ["BloopAI/vibe-kanban",123,"0 commits en 90 días"],
+ ["steipete/agent-rules",120,"Reglas para agentes"],
+ ["appcypher/awesome-mcp-servers",111,"Lista obsoleta, sin licencia"],
+ ["idosal/git-mcp",109,"MCP de documentación de repos"],
+ ["RooCodeInc/Roo-Code",101,"Agente de codificación en VS Code"],
+ ["Aider-AI/aider",95,"0 commits en 90 días — fue referencia del sector"]];
+document.getElementById('dead').innerHTML=dead.sort((a,b)=>b[1]-a[1]).map(([r,d,w])=>
+ `<tr><td class="repo dead">${r}</td><td class="num dead">${d}</td><td>${w}</td></tr>`).join('');
+
+const risk=[
+ ["ccusage","Medio","Baja","Muy bajo","Solo lectura de <code>~/.claude/*.jsonl</code>. Sin red","Total"],
+ ["claude-plugins-official","Alto","Baja","Bajo-Medio","Instala código que corre en tu sesión; procedencia oficial","Total"],
+ ["agentskills (spec)","Medio","Nula","Nulo","Ninguno, es documentación","Total"],
+ ["best-of-mcp-servers","Medio","Nula","Nulo","Ninguno, es una lista","Total"],
+ ["uv","Alto","Baja","Bajo","Escribe en <code>~/.local</code>; descarga de PyPI","Total"],
+ ["gitleaks + pre-commit","Alto","Baja","Bajo","Lectura del repo; hook de git","Total"],
+ ["snyk/agent-scan","Alto","Baja","Bajo","<b>Lee toda tu configuración de MCP y skills</b>; posible telemetría","Total"],
+ ["sandbox-runtime (srt)","Alto","Media","Bajo","Binario global; <code>bubblewrap</code>/<code>sandbox-exec</code>; proxy de red","Alta"],
+ ["serena","Muy alto","Media","Medio","<b>Lee y escribe tu código</b>; lanza language servers","Alta"],
+ ["github-mcp-server","Alto","Baja","Medio-Alto","<b>Token de GitHub</b>: con permisos amplios lee/escribe repos y abre PRs","Alta · revocar token"],
+ ["repomix (--sandbox)","Medio","Baja","Bajo","Lectura del repo; sin <code>--sandbox</code> puede leer fuera","Total"],
+ ["spec-kit","Alto","Baja","Bajo","Escribe plantillas en el proyecto","Total"],
+ ["superpowers","Alto (condicional)","Media","Medio","<b>Hook de session-start en cada sesión</b> + skills ejecutables","Alta"],
+ ["docling","Alto","Media","Medio","Procesa ficheros no confiables; descarga modelos","Alta"],
+ ["chrome-devtools-mcp","Alto","Media","Alto","<b>Controla un navegador</b>: cookies y sesiones. Web = inyección","Alta"],
+ ["browser-use","Alto","Alta","Muy alto","Navegación autónoma con credenciales — la «lethal trifecta» completa","Media"],
+ ["basic-memory","Medio-Alto","Media","Medio","Lee/escribe notas; memoria envenenada = inyección persistente. AGPL-3.0","Media · datos en Markdown"],
+ ["mcp-memory-service","Medio-Alto","Media","Medio","Igual; además REST + OAuth si lo activas","Media"],
+ ["cognee / graphiti","Medio","Alta","Medio","Base de grafos + llamadas LLM de indexación (<b>coste real</b>)","Media"],
+ ["opik / langfuse self-host","Alto","Media","Medio","<b>Las trazas contienen prompts, código y posibles secretos</b>","Alta"],
+ ["promptfoo / inspect_ai","Alto","Media","Bajo","Llama a modelos (coste); lee tus prompts","Total"],
+ ["semgrep","Alto","Media","Bajo","Lectura de código; reglas remotas si usas el registry","Total"],
+ ["osv-scanner / safedep vet","Alto","Baja","Bajo","Lee manifiestos; consulta bases remotas","Total"],
+ ["whisper.cpp","Medio","Media","Bajo","Local, sin red. Descarga inicial del modelo","Total"],
+ ["context7","Medio","Baja","Medio · privacidad","<b>Envía consultas a servidores de terceros</b>; API key","Total"],
+ ["claude-code-router","Variable","Media","Alto · privacidad","<b>Redirige prompts y código a otros proveedores</b>","Alta"],
+ ["ruflo","—","Alta","Crítico","Usa <code>--dangerously-skip-permissions</code>","Baja · 5 607 ficheros"],
+ ["instalador de ECC","—","Media","Alto","Hooks globales + 183 skills + MCP, todo de golpe","Baja"]];
+document.getElementById('risk').innerHTML=risk.map(([t,b,c,r,p,rev])=>{
+ let cls='';
+ if(/Crítico|Muy alto/.test(r))cls='avoid'; else if(/^Alto/.test(r))cls='warn';
+ else if(/Muy bajo|Nulo/.test(r))cls='ok';
+ return `<tr><td class="repo">${t}</td><td>${b}</td><td>${c}</td><td><span class="chip ${cls}">${r}</span></td><td>${p}</td><td>${rev}</td></tr>`;
+}).join('');
+</script>
