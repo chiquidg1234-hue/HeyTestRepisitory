@@ -1,0 +1,579 @@
+<title>Agente Roblox y UEFN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chivo:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+<style>
+:root{
+  --ground:#EDEFF3; --surface:#FBFCFD; --surface-2:#E3E7ED; --sunk:#DDE2E9;
+  --ink:#12161C; --ink-2:#525C6B; --ink-3:#78828F;
+  --rule:#D2D8E1; --rule-2:#B6BECB;
+  --accent:#AD4E17; --accent-soft:#F7E7DA;
+  --rbx:#26705A; --rbx-soft:#DDEDE6;
+  --uefn:#33529B; --uefn-soft:#DFE6F5;
+  --dead:#973026; --dead-soft:#F6E0DC;
+  --warn:#8B6412; --warn-soft:#F4EAD1;
+  --live:#2F6B3B; --live-soft:#DFEBE1;
+  --shadow:0 1px 2px rgba(18,22,28,.05), 0 10px 26px -18px rgba(18,22,28,.4);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1216; --surface:#171B21; --surface-2:#20252D; --sunk:#0A0D10;
+    --ink:#E6E9EE; --ink-2:#98A2B0; --ink-3:#77818E;
+    --rule:#272D36; --rule-2:#38404B;
+    --accent:#EF8F4F; --accent-soft:#2C1D12;
+    --rbx:#5FBE9B; --rbx-soft:#13291F;
+    --uefn:#7E9EE0; --uefn-soft:#151E33;
+    --dead:#E68272; --dead-soft:#2E1815;
+    --warn:#D2A94E; --warn-soft:#2A2210;
+    --live:#77C287; --live-soft:#152417;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 32px -20px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1216; --surface:#171B21; --surface-2:#20252D; --sunk:#0A0D10;
+  --ink:#E6E9EE; --ink-2:#98A2B0; --ink-3:#77818E;
+  --rule:#272D36; --rule-2:#38404B;
+  --accent:#EF8F4F; --accent-soft:#2C1D12;
+  --rbx:#5FBE9B; --rbx-soft:#13291F;
+  --uefn:#7E9EE0; --uefn-soft:#151E33;
+  --dead:#E68272; --dead-soft:#2E1815;
+  --warn:#D2A94E; --warn-soft:#2A2210;
+  --live:#77C287; --live-soft:#152417;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 32px -20px rgba(0,0,0,.9);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  font-size:16.5px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,.dsp{font-family:"Chivo","Helvetica Neue",Arial,sans-serif; letter-spacing:-.02em}
+code,.mono,.num,td.n{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+code{font-size:.88em; background:var(--surface-2); padding:1px 5px; border-radius:3px}
+a{color:var(--accent); text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px}
+p{margin:0 0 13px; max-width:70ch}
+ul,ol{max-width:70ch; padding-left:21px} li{margin-bottom:6px}
+
+.wrap{max-width:1200px; margin:0 auto; padding:0 24px}
+
+/* masthead */
+header.top{background:var(--surface); border-bottom:1px solid var(--rule-2)}
+header.top .wrap{padding:46px 24px 0}
+.kicker{font-family:"JetBrains Mono",monospace; font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-3); display:flex; gap:12px; flex-wrap:wrap}
+.kicker b{color:var(--accent); font-weight:700}
+h1{font-size:clamp(36px,6vw,64px); line-height:1.02; margin:16px 0 0; font-weight:700; max-width:15ch; text-wrap:balance}
+.sub{font-size:clamp(17px,2.1vw,20px); color:var(--ink-2); max-width:62ch; margin:18px 0 0}
+.thesis{
+  margin:30px 0 0; border-left:3px solid var(--accent); background:var(--accent-soft);
+  padding:14px 18px; border-radius:0 4px 4px 0; max-width:74ch; font-size:17px;
+}
+.thesis strong{font-weight:600}
+
+/* split verdict */
+.split{display:grid; grid-template-columns:1fr 1fr; gap:0; margin:34px 0 0; border-top:1px solid var(--rule)}
+@media(max-width:760px){.split{grid-template-columns:1fr}}
+.side{padding:20px 24px 24px; border-right:1px solid var(--rule)}
+.side:last-child{border-right:0}
+@media(max-width:760px){.side{border-right:0; border-bottom:1px solid var(--rule)}}
+.side .tag{font-family:"JetBrains Mono",monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; padding:3px 9px; border-radius:3px; display:inline-block}
+.side.a .tag{background:var(--rbx-soft); color:var(--rbx)}
+.side.b .tag{background:var(--uefn-soft); color:var(--uefn)}
+.side h3{margin:12px 0 4px; font-size:22px; font-weight:700}
+.side .lvl{font-family:"Chivo",sans-serif; font-size:44px; font-weight:700; line-height:1; margin:10px 0 2px; font-variant-numeric:tabular-nums}
+.side.a .lvl{color:var(--rbx)} .side.b .lvl{color:var(--uefn)}
+.side .lvll{font-family:"JetBrains Mono",monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3)}
+.side ul{margin:14px 0 0; padding-left:18px; font-size:15px; color:var(--ink-2)}
+.side li{margin-bottom:5px}
+
+/* layout */
+.layout{display:grid; grid-template-columns:190px minmax(0,1fr); gap:52px; align-items:start; padding-top:42px}
+@media(max-width:960px){.layout{grid-template-columns:1fr; gap:0}}
+nav.rail{position:sticky; top:22px; font-family:"Chivo",sans-serif; font-size:13.5px}
+@media(max-width:960px){nav.rail{position:static; margin-bottom:36px; padding-bottom:22px; border-bottom:1px solid var(--rule)}}
+nav.rail ol{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:1px}
+nav.rail a{display:grid; grid-template-columns:20px 1fr; gap:8px; padding:5px 8px 5px 0; color:var(--ink-2); text-decoration:none; border-radius:3px}
+nav.rail a:hover{color:var(--ink); background:var(--surface-2)}
+nav.rail .k{font-family:"JetBrains Mono",monospace; font-size:10.5px; color:var(--ink-3); padding-top:2px}
+main{min-width:0; padding-bottom:70px}
+
+section{margin-bottom:60px; scroll-margin-top:20px}
+h2{font-family:"JetBrains Mono",monospace; font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin:0 0 6px; font-weight:500}
+.h2b{font-size:clamp(25px,3.4vw,34px); font-weight:700; line-height:1.1; margin:0 0 16px; text-wrap:balance}
+h3{font-size:19px; font-weight:600; margin:34px 0 9px; text-wrap:balance}
+h4{font-size:15.5px; font-weight:600; margin:20px 0 6px}
+.lede{font-size:18px; color:var(--ink-2); max-width:66ch}
+
+/* chips */
+.chip{display:inline-block; font-family:"JetBrains Mono",monospace; font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; padding:2px 7px; border-radius:3px; background:var(--surface-2); color:var(--ink-2); white-space:nowrap; font-weight:500}
+.chip.rbx{background:var(--rbx-soft); color:var(--rbx)}
+.chip.uefn{background:var(--uefn-soft); color:var(--uefn)}
+.chip.dead{background:var(--dead-soft); color:var(--dead)}
+.chip.warn{background:var(--warn-soft); color:var(--warn)}
+.chip.live{background:var(--live-soft); color:var(--live)}
+.chip.acc{background:var(--accent-soft); color:var(--accent)}
+
+/* tables */
+.tw{overflow-x:auto; border:1px solid var(--rule); border-radius:5px; background:var(--surface); margin:14px 0 20px}
+table{border-collapse:collapse; width:100%; font-size:14px; min-width:560px}
+caption{text-align:left; font-family:"JetBrains Mono",monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); padding:11px 13px 5px}
+th,td{padding:8px 12px; text-align:left; border-bottom:1px solid var(--rule); vertical-align:top}
+thead th{font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-3); font-weight:500; background:var(--surface-2); position:sticky; top:0}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--surface-2)}
+td.n,th.n{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; font-size:13px}
+td.r{font-family:"JetBrains Mono",monospace; font-size:12.5px; white-space:nowrap}
+td.r.x{color:var(--dead)}
+
+/* loop ladder */
+.loop{border:1px solid var(--rule); border-radius:5px; background:var(--surface); overflow:hidden; margin:18px 0}
+.step{display:grid; grid-template-columns:40px 132px minmax(0,1fr); gap:14px; padding:12px 16px; border-top:1px solid var(--rule); align-items:start}
+.step:first-child{border-top:0}
+.step .i{font-family:"JetBrains Mono",monospace; font-size:12px; font-weight:700; color:var(--accent); padding-top:2px}
+.step .w{font-family:"Chivo",sans-serif; font-weight:600; font-size:14.5px; padding-top:1px}
+.step .d{font-size:14px; color:var(--ink-2)}
+.step.gate{background:var(--accent-soft)}
+.step.gate .d{color:var(--ink)}
+
+/* levels */
+.lvls{display:flex; flex-direction:column; gap:2px; margin:18px 0}
+.lv{display:grid; grid-template-columns:52px minmax(0,1fr) 96px 96px; gap:14px; padding:14px 16px; background:var(--surface); border:1px solid var(--rule); align-items:center}
+@media(max-width:700px){.lv{grid-template-columns:44px minmax(0,1fr); }.lv .st{grid-column:2}}
+.lv .n2{font-family:"Chivo",sans-serif; font-size:26px; font-weight:700; color:var(--ink-3); font-variant-numeric:tabular-nums}
+.lv .t{font-size:15px} .lv .t b{display:block; font-family:"Chivo",sans-serif; font-weight:600}
+.lv .t span{color:var(--ink-2); font-size:14px}
+.lv .st{font-family:"JetBrains Mono",monospace; font-size:11px; text-align:center; padding:4px 6px; border-radius:3px}
+.lv .st.y{background:var(--live-soft); color:var(--live)}
+.lv .st.p{background:var(--warn-soft); color:var(--warn)}
+.lv .st.n{background:var(--dead-soft); color:var(--dead)}
+
+/* phases */
+.ph{display:grid; grid-template-columns:78px minmax(0,1fr); gap:18px; padding:16px 0; border-top:1px solid var(--rule)}
+.ph .p{font-family:"JetBrains Mono",monospace; font-size:11.5px; font-weight:700; color:var(--accent); letter-spacing:.06em; padding-top:3px}
+.ph h4{margin-top:0}
+.ph .crit{font-size:14px; color:var(--ink-2); border-left:2px solid var(--rule-2); padding-left:12px; margin-top:8px}
+
+/* callouts */
+.call{border:1px solid var(--rule-2); border-left:3px solid var(--accent); background:var(--surface); padding:13px 17px; border-radius:0 4px 4px 0; margin:18px 0}
+.call.no{border-left-color:var(--dead)}
+.call.yes{border-left-color:var(--live)}
+.call p:last-child{margin-bottom:0}
+
+/* arch */
+.arch{background:var(--surface); border:1px solid var(--rule); border-radius:5px; padding:18px; margin:18px 0}
+.lay{display:grid; grid-template-columns:120px minmax(0,1fr); gap:14px; padding:10px 0; border-top:1px solid var(--rule); align-items:start}
+.lay:first-of-type{border-top:0}
+.lay .nm{font-family:"JetBrains Mono",monospace; font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3); padding-top:5px}
+.lay .it{display:flex; flex-wrap:wrap; gap:6px}
+.pill{font-size:13px; padding:3px 10px; border-radius:20px; border:1px solid var(--rule-2); background:var(--ground); white-space:nowrap}
+.pill.c{border-color:var(--accent); background:var(--accent-soft); color:var(--accent); font-weight:600}
+.base{background:var(--sunk); border:1px dashed var(--rule-2); border-radius:4px; padding:11px 14px; margin-bottom:8px}
+
+footer{border-top:1px solid var(--rule-2); background:var(--surface); padding:34px 0 56px; margin-top:16px; font-size:15px; color:var(--ink-2)}
+footer strong{color:var(--ink)}
+.srcs{columns:2; column-gap:34px; font-size:14.5px}
+@media(max-width:700px){.srcs{columns:1}}
+.srcs p{break-inside:avoid; margin-bottom:10px; max-width:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="kicker"><span>Investigación 2.0</span><span>·</span><span>Medición <b>25·08·2026</b></span><span>·</span><span>75 repositorios del ecosistema</span></div>
+    <h1>Agente Roblox y UEFN</h1>
+    <p class="sub">Qué instalar para convertir Claude Code en un agente que construye juegos — y por qué la respuesta son once piezas, no cien.</p>
+    <div class="thesis"><strong>La respuesta cambió hace cinco días.</strong> Los dos motores ya traen su propio servidor MCP dentro del editor. No es un proyecto comunitario: es primera parte en ambos casos. Eso mueve el 80 % de lo que pedías fuera de la columna «instalar».</div>
+
+    <div class="split">
+      <div class="side a">
+        <span class="tag">Perfil A · Roblox</span>
+        <h3>Ciclo cerrado</h3>
+        <div class="lvl">4</div>
+        <div class="lvll">nivel de autonomía alcanzable</div>
+        <ul>
+          <li>MCP oficial en Studio con <code>execute_luau</code>, playtest, consola, captura y simulación de input</li>
+          <li>Open Cloud ejecuta Luau <strong>sin GUI</strong> para CI</li>
+          <li><code>luau-lsp</code> da tipos y símbolos reales</li>
+          <li>Tests unitarios headless posibles</li>
+        </ul>
+      </div>
+      <div class="side b">
+        <span class="tag">Perfil B · UEFN</span>
+        <h3>Ciclo abierto</h3>
+        <div class="lvl">2–3</div>
+        <div class="lvll">techo real hoy</div>
+        <ul>
+          <li>Unreal MCP en el editor desde el <strong>20-ago-2026</strong>: cinco días de vida</li>
+          <li><strong>Sin ejecución headless.</strong> Sin CI</li>
+          <li><strong>Sin framework de tests</strong> para Verse</li>
+          <li>Sin gramática ni indexador para Verse</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap layout">
+<nav class="rail" aria-label="Secciones">
+  <ol>
+    <li><a href="#nativo"><span class="k">01</span><span>Qué ya hace Claude</span></a></li>
+    <li><a href="#motor"><span class="k">02</span><span>El MCP del editor</span></a></li>
+    <li><a href="#codegraph"><span class="k">03</span><span>Code graph</span></a></li>
+    <li><a href="#memoria"><span class="k">04</span><span>Memoria</span></a></li>
+    <li><a href="#loop"><span class="k">05</span><span>El agent loop</span></a></li>
+    <li><a href="#testing"><span class="k">06</span><span>Evidencia</span></a></li>
+    <li><a href="#ecosistema"><span class="k">07</span><span>Ecosistema medido</span></a></li>
+    <li><a href="#redundancia"><span class="k">08</span><span>Redundancias</span></a></li>
+    <li><a href="#arquitectura"><span class="k">09</span><span>Arquitectura</span></a></li>
+    <li><a href="#matriz"><span class="k">10</span><span>Matriz de decisión</span></a></li>
+    <li><a href="#fases"><span class="k">11</span><span>Plan por fases</span></a></li>
+    <li><a href="#niveles"><span class="k">12</span><span>Autonomía real</span></a></li>
+  </ol>
+</nav>
+
+<main>
+
+<section id="nativo">
+  <h2>01 — Auditoría previa</h2>
+  <p class="h2b">Las cuatro brechas reales</p>
+  <p class="lede">Claude Code en agosto de 2026 ya trae sandbox de SO, skills con carga progresiva, subagentes anidados hasta profundidad 3 con 20 concurrentes, hooks deterministas, auto-memoria por repositorio, <strong>soporte LSP nativo</strong>, <code>/context</code>, <code>/compact</code>, OTEL y <code>/security-review</code>.</p>
+  <p>Todo eso está cubierto. Lo que <em>no</em> puede hacer solo se reduce a cuatro cosas — y el stack entero existe para cubrirlas, nada más:</p>
+  <div class="tw"><table>
+    <thead><tr><th class="n">#</th><th>Brecha</th><th>Qué falta exactamente</th><th>Quién la cubre</th></tr></thead>
+    <tbody>
+      <tr><td class="n">1</td><td><strong>No puede tocar el motor</strong></td><td>No abre Studio, no compila Verse, no lanza una partida, no ve la pantalla</td><td>MCP del editor</td></tr>
+      <tr><td class="n">2</td><td><strong>No entiende Luau ni Verse semánticamente</strong></td><td>Grep encuentra texto, no «dónde se llama esta RemoteFunction»</td><td><code>luau-lsp</code> · digests de Verse</td></tr>
+      <tr><td class="n">3</td><td><strong>No recuerda por qué se descartó algo</strong></td><td>La auto-memoria son notas, no un registro de decisiones</td><td><code>docs/decisiones/</code> en el repo</td></tr>
+      <tr><td class="n">4</td><td><strong>No puede demostrar que terminó</strong></td><td>Puede decir «hecho» sin evidencia</td><td>Hooks de verificación</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="motor">
+  <h2>02 — La pieza número uno</h2>
+  <p class="h2b">Los dos editores ya traen servidor MCP</p>
+
+  <h3><span class="chip rbx">Roblox</span> Studio MCP — verificado en fuente primaria</h3>
+  <p>Leído en crudo de <code>content/en-us/studio/mcp.md</code> en el repositorio <a href="https://github.com/Roblox/creator-docs">Roblox/creator-docs</a> (49 commits/30 d, 9 295 ficheros). Se activa en Assistant → <strong>…</strong> → Manage MCP Servers. Transporte <code>stdio</code>. <strong>Claude Code aparece explícitamente en la lista de quick-connect.</strong></p>
+  <div class="tw"><table>
+    <caption>Herramientas del Studio MCP y qué desbloquean</caption>
+    <thead><tr><th>Grupo</th><th>Herramientas</th><th>Qué habilita</th></tr></thead>
+    <tbody>
+      <tr><td>Scripts</td><td class="r">script_read · multi_edit · script_search · script_grep</td><td>Leer y editar dentro del DataModel</td></tr>
+      <tr><td>Exploración</td><td class="r">search_game_tree · inspect_instance · subagent</td><td>Entender la jerarquía del juego, no sólo el código</td></tr>
+      <tr><td><strong>Ejecución</strong></td><td class="r"><strong>execute_luau</strong> (Edit/Client/Server)</td><td><strong>Ejecutar código real en el motor y ver el resultado</strong></td></tr>
+      <tr><td><strong>Playtest</strong></td><td class="r">start_stop_play · get_console_output · screen_capture · get_studio_state</td><td><strong>Probar, leer errores y <em>ver</em> el resultado</strong></td></tr>
+      <tr><td>Input</td><td class="r">character_navigation · user_keyboard_input</td><td>Probar mecánicas, no sólo funciones puras</td></tr>
+      <tr><td>Assets</td><td class="r">generate_mesh · generate_material · generate_procedural_model · search_asset · insert_asset</td><td>Pipeline de contenido sin salir del agente</td></tr>
+      <tr><td>Multi-instancia</td><td class="r">list_roblox_studios · studio_id en toda llamada</td><td>Varios Studio y agentes en paralelo</td></tr>
+    </tbody>
+  </table></div>
+  <div class="call no"><p>Advertencia textual de la documentación oficial: <em>«MCP clients can read and modify content in your open Roblox places. Make sure to only connect clients you trust.»</em> No hay forma de sandboxear esto: <strong>es el editor</strong>. La mitigación es de proceso — trabaja siempre sobre un place de desarrollo.</p></div>
+
+  <h3><span class="chip uefn">UEFN</span> Unreal MCP — cinco días de vida</h3>
+  <p><span class="chip warn">fuente secundaria</span> Fortnite v42.00 salió el <strong>20 de agosto de 2026</strong> y con él Unreal MCP —el plugin que ya venía en UE 5.8— llega integrado en UEFN, sin instalación aparte. Se activa en <strong>Project Settings → Beta Access → UEFN MCP Toolset</strong>. Capacidades anunciadas: escribir y compilar Verse, colocar y configurar devices, crear entidades de Scene Graph, construir UI con UMG y ejecutar sesiones de juego. Todo lo que crea el agente es parte real y editable del proyecto.</p>
+  <div class="call"><p><strong>No pude leer la documentación de Epic con mis propios ojos.</strong> <code>dev.epicgames.com</code> está bloqueado por el proxy de egreso de esta sesión y además devuelve 403 a rastreadores. Todo lo de UEFN procede de las notas de la versión 42.00, el anuncio en <code>fortnite.com</code> y el foro oficial, leídos a través de buscadores. <strong>Ábrelas tú antes de la Fase 6.</strong></p></div>
+
+  <h3>La segunda mitad que sólo tiene Roblox</h3>
+  <p>El Studio MCP requiere Studio abierto, o sea GUI y máquina. Para CI existe la <strong>Open Cloud Luau Execution API</strong>: ejecuta Luau contra una versión de un place, sin GUI, con acceso completo al DataModel. Límites documentados: <strong>5 minutos por tarea, 10 concurrentes por place</strong>. UEFN no tiene equivalente, y esa ausencia es la que fija su techo de autonomía.</p>
+</section>
+
+<section id="codegraph">
+  <h2>03 — Code graph</h2>
+  <p class="h2b">La respuesta más contraintuitiva del informe</p>
+  <p class="lede">Preguntabas si Serena, ast-grep o Repomix — una, dos o ninguna. Los hechos medidos deciden por lenguaje.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Herramienta</th><th>¿Habla Luau?</th><th>¿Habla Verse?</th><th>Coste</th><th>Veredicto</th></tr></thead>
+    <tbody>
+      <tr><td class="r">LSP nativo + luau-lsp</td><td><span class="chip live">sí</span></td><td><span class="chip dead">no</span></td><td><strong>cero herramientas MCP</strong></td><td>Base. 16 commits/30 d</td></tr>
+      <tr><td class="r">Serena</td><td><span class="chip live">sí, explícito</span></td><td><span class="chip dead">no</span></td><td>~24 k tokens de superficie</td><td>Probar primero, con medición</td></tr>
+      <tr><td class="r x">ast-grep</td><td><span class="chip dead">no — sólo Lua</span></td><td><span class="chip dead">no</span></td><td>bajo</td><td>Descartada</td></tr>
+      <tr><td class="r x">code-graph-rag</td><td><span class="chip dead">no — sólo Lua</span></td><td><span class="chip dead">no</span></td><td>exige Memgraph</td><td>Descartada</td></tr>
+      <tr><td class="r">Repomix</td><td>agnóstico</td><td>agnóstico</td><td>medio</td><td>Opcional, auditorías</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>El detalle técnico que descarta ast-grep:</strong> su lista de lenguajes incluye <code>Lua</code>, no <code>Luau</code>. Luau es un superconjunto con anotaciones de tipo, genéricos y casts <code>::</code> — exactamente el estilo que quieres que escriba el agente. Una gramática de Lua fallará al parsearlo. <span class="chip warn">deducción, no ejecutada</span></p>
+
+  <h3>Serena: la evidencia va en las dos direcciones</h3>
+  <div class="tw"><table>
+    <caption>Benchmark ManoMano · servicio de pagos Java · 381 clases · 36 407 líneas · 1 017 tests · Sonnet 4.5, feb-2026</caption>
+    <thead><tr><th>Configuración</th><th class="n">Tiempo</th><th class="n">Coste</th><th>Resultado del refactor masivo</th></tr></thead>
+    <tbody>
+      <tr><td>Claude vainilla</td><td class="n">1 h</td><td class="n">23,54 $</td><td class="mono">no compila</td></tr>
+      <tr><td>Claude Code + LSP nativo</td><td class="n">1 h</td><td class="n">28,63 $</td><td class="mono">se rinde · 9 tests fallando</td></tr>
+      <tr><td><strong>Claude + Serena</strong></td><td class="n"><strong>45 min</strong></td><td class="n">27,30 $</td><td class="mono"><strong>compila · 1 017 tests verdes</strong></td></tr>
+    </tbody>
+  </table></div>
+  <div class="call no"><p><strong>Y en contra:</strong> el mismo cuerpo de evidencia recoge que, para una consulta simple de localizar una regla de negocio, <strong>Serena costó casi 4× más y tardó un 60 % más</strong> que Claude vainilla. Su propio mantenedor admite en la discusión #1592 que las ganancias «dependen del escenario» y que los benchmarks públicos aún estaban por publicar.</p></div>
+  <p><strong>Decisión:</strong> <code>luau-lsp</code> es <span class="chip acc">install</span>. Serena es <span class="chip warn">test first</span>, con criterio explícito: sólo cuando tengas un refactor real que cruce más de diez ficheros. Por debajo de ~10 000 líneas de Luau, la evidencia dice que pierdes dinero y velocidad.</p>
+
+  <h3>Para Verse: ninguna de las tres</h3>
+  <p>No hay gramática tree-sitter mantenida — <code>verse-lang/tree-sitter-verse</code> lleva <strong>2 814 días</strong> parado y además corresponde a otro lenguaje llamado Verse, no al de Epic. La sustitución es de baja tecnología y funciona:</p>
+  <ol>
+    <li><strong>grep contra los digests</strong> — <code>Fortnite.digest.verse</code>, <code>UnrealEngine.digest.verse</code>, <code>Assets.digest.verse</code>: el listado autogenerado de todos los símbolos públicos que ha procesado el compilador, en tu disco.</li>
+    <li><strong>grep sobre tu propio código</strong> para referencias.</li>
+    <li><strong>El compilador como oráculo</strong>: compilar por el MCP y leer errores. En Verse, el compilador <em>es</em> tu análisis estático.</li>
+  </ol>
+  <div class="call yes"><p>Los digests resuelven el problema número uno de escribir Verse con un LLM: <strong>la alucinación de APIs</strong>. Una regla en <code>CLAUDE.md</code> —«verifica todo símbolo contra el digest antes de usarlo; si no aparece, no existe»— convierte una fuente constante de errores en una comprobación de coste casi cero. No necesitas ningún MCP de documentación de Verse: ya lo tienes.</p></div>
+</section>
+
+<section id="memoria">
+  <h2>04 — Memoria</h2>
+  <p class="h2b">La respuesta corta: todavía no instales nada</p>
+  <p class="lede">Fíjate en la naturaleza de lo que hay que recordar durante meses: arquitectura, decisiones, <strong>decisiones rechazadas y por qué</strong>, convenciones, contratos entre sistemas, bugs conocidos, objetivos. Casi todo es texto estable que <em>tú también</em> quieres leer, revisar y versionar.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Opción</th><th class="n">Tokens</th><th class="n">Latencia</th><th class="n">Complejidad</th><th>Riesgo</th><th>Actividad medida</th></tr></thead>
+    <tbody>
+      <tr><td><strong>CLAUDE.md + rules + auto-memoria</strong></td><td class="n">mínimos</td><td class="n">cero</td><td class="n">cero</td><td>ninguno</td><td>nativo</td></tr>
+      <tr><td><strong>docs/decisiones/ en el repo</strong></td><td class="n">bajos</td><td class="n">cero</td><td class="n">muy baja</td><td>ninguno</td><td>—</td></tr>
+      <tr><td>basic-memory</td><td class="n">medios</td><td class="n">baja</td><td class="n">media</td><td>inyección persistente</td><td>≥100/30 d · AGPL-3.0</td></tr>
+      <tr><td>mcp-memory-service</td><td class="n">medios</td><td class="n">baja</td><td class="n">media</td><td>+ REST/OAuth</td><td>174/30 d · Apache-2.0</td></tr>
+      <tr><td>Graphiti</td><td class="n">altos</td><td class="n">media</td><td class="n">alta · Neo4j</td><td>medio</td><td>39/30 d</td></tr>
+      <tr><td>Cognee</td><td class="n">altos</td><td class="n">media</td><td class="n">alta</td><td>medio</td><td>667/30 d</td></tr>
+    </tbody>
+  </table></div>
+  <div class="call yes"><p><strong>Empieza sin nada externo.</strong> <code>CLAUDE.md</code> para convenciones, <code>.claude/rules/</code> con ámbito por tipo de fichero (una regla para <code>*.server.luau</code>, otra para <code>*.client.luau</code>, otra para <code>*.verse</code>), auto-memoria para correcciones, y <strong>un fichero Markdown por decisión</strong> en <code>docs/decisiones/</code>: contexto, opciones, decisión, alternativas rechazadas y por qué, consecuencias.</p></div>
+  <p>No es una solución de segunda. Para un proyecto de código, un registro de decisiones en el repositorio gana a un MCP de memoria en cinco de siete ejes: cuesta menos tokens, no añade latencia, no añade superficie de ataque, lo revisas en un diff, y sobrevive a que el proyecto de memoria muera.</p>
+  <p><strong>Por qué descarto Graphiti y Cognee aquí</strong>, siendo ambos excelentes: su ventaja real es modelar hechos con validez temporal y grafos densos de entidades. Un juego tiene un grafo denso de sistemas y dependencias — pero <strong>ese grafo ya existe en el código, y lo consulta mejor un servidor de lenguaje que un grafo reconstruido por un LLM</strong>. Pagar indexación con LLM para reconstruir lo que <code>luau-lsp</code> te da exacto y gratis es el error de diseño más caro de la categoría.</p>
+  <p><strong>Único upgrade justificado</strong>, con disparador medible: cuando hayas reexplicado lo mismo en dos proyectos distintos más de tres veces, añade <code>basic-memory</code> — porque guarda Markdown que sigue siendo tuyo. <strong>Nunca dos sistemas.</strong> Cuatro fuentes de memoria no son más memoria: son cuatro versiones que se contradicen sin árbitro.</p>
+</section>
+
+<section id="loop">
+  <h2>05 — El agent loop</h2>
+  <p class="h2b">Lo que separa un agente de un generador de código</p>
+  <div class="call"><p><strong>El agente no puede declarar «terminado». Sólo puede presentar evidencia, y la evidencia la comprueba una máquina.</strong> Esto no se consigue con un framework: se consigue con <em>hooks</em>, la única parte de Claude Code que es determinista — se ejecutan siempre, no cuando el modelo decide.</p></div>
+  <div class="loop">
+    <div class="step"><span class="i">01</span><span class="w">PLAN</span><span class="d">Plan mode + Spec Kit + <code>docs/decisiones/</code></span></div>
+    <div class="step"><span class="i">02</span><span class="w">IMPLEMENT</span><span class="d">LSP nativo con <code>luau-lsp</code> y ficheros vía Rojo · en Verse, MCP de UEFN + grep contra digests</span></div>
+    <div class="step gate"><span class="i">03</span><span class="w">VERIFY ESTÁTICO</span><span class="d"><strong>Hook <code>PostToolUse</code></strong> sobre cada escritura de <code>*.luau</code>: <code>luau-lsp analyze</code> + <code>selene</code> + <code>StyLua --check</code>. El agente recibe el error <strong>inmediatamente</strong>, no tres pasos después</span></div>
+    <div class="step"><span class="i">04</span><span class="w">TEST</span><span class="d">Lune o Lute para lógica pura · <code>execute_luau</code> para lógica con motor. <span class="chip uefn">en UEFN este paso no existe</span></span></div>
+    <div class="step"><span class="i">05</span><span class="w">OBSERVE</span><span class="d"><code>get_console_output</code> · <code>screen_capture</code> · <code>user_keyboard_input</code> · <code>character_navigation</code></span></div>
+    <div class="step"><span class="i">06</span><span class="w">DEBUG · FIX</span><span class="d">Vuelta al paso 02 con evidencia concreta, no con una hipótesis</span></div>
+    <div class="step gate"><span class="i">07</span><span class="w">GATE</span><span class="d"><strong>Hook <code>Stop</code></strong>: si el build o los tests fallan, el turno <strong>no</strong> se cierra como completo. Esto es lo que impide el «ya terminé» sin evidencia</span></div>
+    <div class="step"><span class="i">08</span><span class="w">REVIEW</span><span class="d">Subagente con contexto limpio + <code>/security-review</code></span></div>
+    <div class="step"><span class="i">09</span><span class="w">RECORD</span><span class="d">Una decisión escrita en <code>docs/decisiones/</code> antes de continuar</span></div>
+  </div>
+
+  <h3>Spec Kit sí, Superpowers no — al principio</h3>
+  <p>Se solapan: ambos imponen el mismo ciclo. La diferencia está en cuándo se activan. Spec Kit lo invocas; Superpowers se carga en cada sesión vía hook de arranque — el issue #190 documentó <strong>22 448 tokens</strong> de skills al inicio, ~11 % de una ventana de 200 k. El autor lo corrigió en dos días y dedicó la v6.1.0 a comprimir el bootstrap, lo cual habla bien del proyecto.</p>
+  <p><strong>El argumento decisivo es tu caso de uso:</strong> en desarrollo de juegos alternas constantemente entre trabajo grande (un sistema de inventario) y minúsculo (ajustar una constante de daño). Un harness siempre activo penaliza el segundo, que es la mayoría de tus interacciones. <em>Léete las skills de Superpowers igualmente</em> — la metodología es correcta y es gratis; lo que cuesta es el harness.</p>
+</section>
+
+<section id="testing">
+  <h2>06 — Evidencia</h2>
+  <p class="h2b">Cinco niveles, de más barato a más caro</p>
+  <p class="lede">El agente debe subir por ellos en orden. Cada uno demuestra algo distinto.</p>
+  <div class="tw"><table>
+    <thead><tr><th class="n">Nv</th><th>Qué es</th><th><span class="chip rbx">Roblox</span></th><th><span class="chip uefn">UEFN</span></th><th>Qué demuestra</th></tr></thead>
+    <tbody>
+      <tr><td class="n">1</td><td>Tipos y lint</td><td class="r">luau-lsp analyze · selene · StyLua</td><td class="r">compilar Verse vía MCP</td><td>Que compila y respeta convenciones</td></tr>
+      <tr><td class="n">2</td><td>Unitario headless</td><td class="r">Lune o Lute</td><td class="r x">no existe</td><td>Que la lógica de negocio es correcta</td></tr>
+      <tr><td class="n">3</td><td>En motor</td><td class="r">execute_luau (Server/Client)</td><td class="r">sesión de juego</td><td>Que funciona con la API real</td></tr>
+      <tr><td class="n">4</td><td>Jugado</td><td class="r">start_stop_play + input + screen_capture</td><td class="r">play session observada</td><td>Que la mecánica <em>se siente</em> bien</td></tr>
+      <tr><td class="n">5</td><td>CI sin GUI</td><td class="r">Open Cloud Luau Execution</td><td class="r x">no existe</td><td>Que no hay regresión, sin humano</td></tr>
+    </tbody>
+  </table></div>
+  <div class="call no"><p><strong>Ningún framework de tests de Luau está vivo.</strong> TestEZ <strong>1 302 días</strong> sin commits · jest-lua <strong>609</strong> · EzSpec <strong>1 738</strong> · tiniest 415. Recomendación: <strong>escribe un runner mínimo propio sobre Lune o Lute</strong> — cincuenta líneas: descubrir <code>*.spec.luau</code>, ejecutar, contar fallos, salir con código distinto de cero. Adoptar una dependencia muerta para ahorrarte cincuenta líneas es peor negocio que mantener cincuenta líneas.</p></div>
+  <div class="call yes"><p><strong>La regla de arquitectura más importante de todo el informe</strong>, y no es una herramienta: el agente debe escribir la lógica de juego en ModuleScripts puros que no toquen servicios de Roblox, dejando los servicios en una capa fina. Eso hace que el nivel 2 cubra la mayor parte del código — y es lo que convierte «probar un juego» en algo automatizable. Va en <code>CLAUDE.md</code>.</p></div>
+</section>
+
+<section id="ecosistema">
+  <h2>07 — Ecosistema medido</h2>
+  <p class="h2b">El open source de Roblox está mayormente congelado</p>
+  <p class="lede">Medición directa por clonado de metadatos, 25-08-2026. Esto es lo que ninguna guía te cuenta.</p>
+  <div class="tw"><table>
+    <caption>Toolchain y librerías · <span class="mono">≥100</span> significa que el contador tocó techo</caption>
+    <thead><tr><th>Repositorio</th><th class="n">Días sin commits</th><th class="n">30 d</th><th class="n">90 d</th><th class="n">año</th><th>Estado</th></tr></thead>
+    <tbody id="eco"></tbody>
+  </table></div>
+  <div class="call"><p><strong>El matiz que evita una conclusión injusta:</strong> para una <em>librería</em> de Luau, «sin commits» no significa lo mismo que para un escáner de seguridad. Luau es retrocompatible y la API de Roblox no rompe: <code>ProfileStore</code> o <code>Promise</code> pueden estar simplemente terminados. <strong>Para el toolchain sí importa</strong>, porque persigue cambios de plataforma — que Wally lleve 497 días parado es riesgo real de suministro.</p>
+  <p><strong>Regla de diseño que se deriva:</strong> minimiza dependencias de terceros y prefiere primera parte. Esto tiene que ir escrito en <code>CLAUDE.md</code>.</p></div>
+</section>
+
+<section id="redundancia">
+  <h2>08 — Redundancias</h2>
+  <p class="h2b">Cómo no construir un Frankenstein</p>
+  <div class="tw"><table>
+    <thead><tr><th>Combinación</th><th>Veredicto</th></tr></thead>
+    <tbody>
+      <tr><td class="r">auto-memoria + basic-memory + Graphiti + Cognee</td><td><strong>Frankenstein.</strong> Cuatro fuentes contradictorias sin arbitraje. Quédate con una</td></tr>
+      <tr><td class="r">Serena + ast-grep + Repomix</td><td><strong>Dos sobran.</strong> ast-grep no habla Luau; Repomix es puntual</td></tr>
+      <tr><td class="r">Serena + LSP nativo con luau-lsp</td><td><strong>Solapamiento del 80 %.</strong> Serena añade edición semántica y memorias, y cuesta ~24 k. Empieza por el nativo</td></tr>
+      <tr><td class="r">Superpowers + Spec Kit</td><td><strong>Se pisan.</strong> Mismo ciclo, distinto momento de activación</td></tr>
+      <tr><td class="r">Studio MCP oficial + MCP comunitario</td><td>Redundante salvo multijugador específico. Primera parte primero</td></tr>
+      <tr><td class="r">MCP de docs de Verse + digests en disco</td><td><strong>Redundante y peor.</strong> El digest es la fuente de verdad</td></tr>
+      <tr><td class="r">GPT Researcher + creator-docs clonado</td><td>Redundante. El clone local gana en exactitud y coste</td></tr>
+      <tr><td class="r">Lune + Lute</td><td>Redundante. Elige uno</td></tr>
+      <tr><td class="r">Wally + pesde</td><td>Redundante y ambos discutibles. Minimiza dependencias y el problema desaparece</td></tr>
+      <tr><td class="r">Rojo + Studio MCP</td><td><span class="chip live">complementarios</span> Rojo da git, ficheros y CI; el MCP da ejecución y observación. <strong>Necesitas los dos</strong></td></tr>
+      <tr><td class="r">luau-lsp + selene</td><td><span class="chip live">complementarios</span> Uno da tipos, el otro reglas y errores lógicos</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="arquitectura">
+  <h2>09 — Arquitectura</h2>
+  <p class="h2b">Once piezas y ninguna capa de orquestación</p>
+  <div class="arch">
+    <div class="base lay">
+      <div class="nm">Capa 0 · nativo</div>
+      <div class="it"><span class="pill">plan mode</span><span class="pill">subagentes anidados</span><span class="pill">skills</span><span class="pill">hooks</span><span class="pill">LSP nativo</span><span class="pill">sandbox Bash</span><span class="pill">auto-memoria</span><span class="pill">/context</span><span class="pill">OTEL</span></div>
+    </div>
+    <div class="lay"><div class="nm">Motor</div><div class="it"><span class="pill c">Studio MCP</span><span class="pill c">Unreal MCP</span></div></div>
+    <div class="lay"><div class="nm">Código</div><div class="it"><span class="pill c">luau-lsp</span><span class="pill">digests de Verse</span></div></div>
+    <div class="lay"><div class="nm">Verificación</div><div class="it"><span class="pill c">hook PostToolUse</span><span class="pill c">hook Stop</span><span class="pill">Lune | Lute</span><span class="pill">Open Cloud</span></div></div>
+    <div class="lay"><div class="nm">Conocimiento</div><div class="it"><span class="pill">creator-docs local</span><span class="pill">CLAUDE.md + rules</span><span class="pill c">docs/decisiones/</span></div></div>
+    <div class="lay"><div class="nm">Proyecto</div><div class="it"><span class="pill c">Rojo</span><span class="pill">Rokit</span><span class="pill">git</span></div></div>
+    <div class="lay"><div class="nm">Seguridad</div><div class="it"><span class="pill c">gitleaks + pre-commit</span><span class="pill">osv-scanner</span><span class="pill">srt</span><span class="pill">/security-review</span></div></div>
+    <div class="lay"><div class="nm">Medición</div><div class="it"><span class="pill">ccusage</span><span class="pill">/context</span></div></div>
+  </div>
+  <p><strong>No hay capa de orquestación ni multi-agente</strong>, y es deliberado: Claude Code ya anida subagentes hasta profundidad 3 con 20 concurrentes. Un orquestador encima multiplica coste sin añadir capacidad.</p>
+  <div class="tw"><table>
+    <caption>Reparto por perfil</caption>
+    <thead><tr><th>Bloque</th><th>Piezas</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Compartido</strong> (7)</td><td>Claude Code bien configurado · <code>docs/decisiones/</code>+rules · Spec Kit · gitleaks+pre-commit · osv-scanner · ccusage · srt</td></tr>
+      <tr><td><span class="chip rbx">Roblox</span> (5)</td><td>Studio MCP · luau-lsp · Rojo (+Rokit) · selene+StyLua · Lune o Lute + runner propio · <em>creator-docs clonado</em></td></tr>
+      <tr><td><span class="chip uefn">UEFN</span> (3)</td><td>Unreal MCP · regla de digests · git sobre la carpeta del proyecto</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Total: 12 si trabajas sólo en Roblox, 10 sólo en UEFN.</strong> De esas, tres son interruptores y cuatro son binarios sin estado.</p>
+</section>
+
+<section id="matriz">
+  <h2>10 — Matriz de decisión</h2>
+  <p class="h2b">Cada candidata, con veredicto</p>
+  <div class="tw"><table>
+    <thead><tr><th>Herramienta</th><th>Capacidad</th><th>¿Claude ya lo hace?</th><th class="n">Tokens</th><th>Riesgo</th><th class="n">RBX</th><th class="n">UEFN</th><th>Decisión</th></tr></thead>
+    <tbody id="mtx"></tbody>
+  </table></div>
+</section>
+
+<section id="fases">
+  <h2>11 — Plan de instalación</h2>
+  <p class="h2b">Una herramienta cada vez, y se mide</p>
+  <div class="call"><p>Tras cada instalación: comprobar que funciona · <code>/context</code> · <code>ccusage</code> · latencia · errores · seguridad · comparar con la medición anterior. <strong>Si empeora, se quita.</strong></p></div>
+  <div class="ph"><div class="p">FASE 0</div><div><h4>Baseline — sin instalar nada</h4><p><code>/doctor</code> · <code>/context</code> y anotar tokens de arranque · <code>/sandbox</code> · <code>~/.claude/</code> bajo git · <code>npx ccusage</code>.</p><p class="crit"><strong>Define aquí la tarea patrón</strong> con la que compararás todo. Propuesta: «añade un sistema de inventario persistente con UI mínima». Ejecútala una vez y guarda los tres números.</p></div></div>
+  <div class="ph"><div class="p">FASE 1</div><div><h4>Seguridad y medición</h4><p>gitleaks + pre-commit → osv-scanner → ccusage como hábito.</p><p class="crit">Criterio: cero impacto en <code>/context</code>.</p></div></div>
+  <div class="ph"><div class="p">FASE 2</div><div><h4>Code intelligence — sólo <code>luau-lsp</code></h4><p>Instalar el binario, verificar <code>luau-lsp analyze</code> con resolución de Rojo, y exponerlo como plugin LSP a Claude Code. <strong>No instales Serena aquí</strong>: es la comparación que quieres hacer más tarde, con datos.</p><p class="crit">Criterio: el agente encuentra referencias sin leer ficheros enteros y la tarea patrón baja en tokens o en iteraciones.</p></div></div>
+  <div class="ph"><div class="p">FASE 3</div><div><h4>Memoria — no se instala software, se escribe</h4><p><code>CLAUDE.md</code>, tres o cuatro ficheros en <code>.claude/rules/</code>, y el primer <code>docs/decisiones/001-*.md</code>.</p><p class="crit">Criterio: reabrir el proyecto tras una semana y que el agente no pregunte nada que ya esté decidido.</p></div></div>
+  <div class="ph"><div class="p">FASE 4</div><div><h4>Investigación</h4><p><code>git clone</code> de creator-docs y localizar los digests. Una regla en <code>CLAUDE.md</code>: local antes que web.</p><p class="crit">Criterio: las búsquedas web por dudas de API caen a casi cero.</p></div></div>
+  <div class="ph"><div class="p">FASE 5</div><div><h4>Testing</h4><p>selene + StyLua → hook <code>PostToolUse</code> → Lune o Lute + runner propio → hook <code>Stop</code> como puerta.</p><p class="crit">Criterio: el agente ya no puede cerrar un turno con el build roto.</p></div></div>
+  <div class="ph"><div class="p">FASE 6</div><div><h4>Tooling del motor</h4><p><span class="chip rbx">Roblox</span> Rojo (+Rokit) → activar Studio MCP → quick-connect. <span class="chip uefn">UEFN</span> activar el UEFN MCP Toolset en Beta Access → conectar → <strong>probar en un proyecto de usar y tirar, nunca en el bueno</strong>.</p><p class="crit">Criterio: el agente completa implementar → playtest → leer consola → corregir sin ayuda.</p></div></div>
+  <div class="ph"><div class="p">FASE 7</div><div><h4>Autonomía</h4><p>Open Cloud para CI nocturno con token limitado al universo de desarrollo → Spec Kit → <code>srt</code> alrededor de binarios de terceros → y <strong>sólo entonces</strong>, evaluar Serena con la tarea patrón.</p></div></div>
+</section>
+
+<section id="niveles">
+  <h2>12 — Autonomía real</h2>
+  <p class="h2b">Dónde está la frontera de verdad</p>
+  <div class="lvls" id="lv"></div>
+  <div class="call"><p><strong>El nivel 3 es la frontera real.</strong> Probar, observar y corregir sin ayuda. Todo lo anterior es autocompletado sofisticado; todo lo posterior es acumular horas de vuelo sobre ese ciclo.</p></div>
+
+  <h3>Sé crítico: qué no se automatiza</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Se automatiza de forma fiable</th><th>Necesita supervisión</th><th>Todavía no es fiable</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Implementar un sistema bien especificado · refactorizar con red de tipos y tests · corregir errores de tipo y lint <strong>sin intervención</strong> · tests de lógica pura · verificar en motor · mantener convenciones durante meses · documentar decisiones</td>
+        <td><strong>Diseño de juego</strong> — implementa un loop de progresión, no sabe si es divertido · <strong>balanceo</strong> · <strong>rendimiento en carga</strong>: un playtest con un jugador no predice cincuenta · <strong>anti-exploit</strong>: el agente sigue reglas, los exploiters buscan lo que no está en ellas · arte y sensación</td>
+        <td><strong>UEFN por encima del nivel 3</strong> · sesiones muy largas sin puntos de control · <strong>«construye este juego» de una frase</strong> · el MCP de UEFN a cinco días de su lanzamiento</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <div class="call no"><p><strong>El nivel 5 no está limitado por tecnología.</strong> Está limitado por que un juego son miles de decisiones de producto, y delegarlas todas produce un juego genérico. <strong>Tú</strong> eres quien sabe qué juego quiere. Cualquiera que te prometa hoy un agente autónomo que construye tu isla de Fortnite mientras duermes está vendiendo humo.</p></div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <h3 style="margin-top:0">Qué he verificado y qué no</h3>
+    <div class="srcs">
+      <p><strong>Fuente primaria, leída por mí:</strong> el listado completo de herramientas del Studio MCP, su activación y su advertencia de seguridad, en crudo desde <a href="https://github.com/Roblox/creator-docs">Roblox/creator-docs</a> · toda la tabla de actividad, por clonado de metadatos de 75 repositorios · el soporte de Luau en Serena y su ausencia en ast-grep, desde sus propias fuentes · la existencia del LSP nativo de Claude Code vía plugins.</p>
+      <p><strong>Fuente secundaria, no verificada directamente:</strong> <em>todo lo relativo a UEFN</em>. <code>dev.epicgames.com</code> está bloqueado por el proxy de egreso de esta sesión y devuelve 403 a rastreadores. El lanzamiento de Unreal MCP, sus capacidades, la ruta de los digests y el estado del Python de editor proceden de las notas de la versión 42.00, el anuncio de Epic y su foro oficial.</p>
+      <p><strong>Opinión razonada, no hecho:</strong> el reparto en niveles, el orden de las fases y la decisión de aplazar Serena y basic-memory. Se apoyan en las mediciones, pero son un juicio.</p>
+      <p><strong>Enlaces:</strong> <a href="https://github.com/Roblox/creator-docs/blob/main/content/en-us/studio/mcp.md">Studio MCP (doc oficial)</a> · <a href="https://create.roblox.com/docs/cloud/features/luau-execution">Open Cloud Luau Execution</a> · <a href="https://github.com/JohnnyMorganz/luau-lsp">luau-lsp</a> · <a href="https://github.com/rojo-rbx/rojo">Rojo</a> · <a href="https://github.com/luau-lang/lute">Lute</a> · <a href="https://github.com/oraios/serena">Serena</a> · <a href="https://github.com/obra/superpowers/issues/190">Superpowers #190</a> · <a href="https://www.fortnite.com/news/unreal-mcp-is-now-available-in-uefn">Unreal MCP en UEFN</a></p>
+    </div>
+    <p style="margin-top:20px; padding-top:16px; border-top:1px solid var(--rule)"><strong>No se ha instalado, ejecutado ni modificado nada en tu entorno.</strong></p>
+  </div>
+</footer>
+
+<script>
+const eco=[
+ ["luau-lang/luau",3,17,46,152,"live","Vivo · aquí vive luau-analyze"],
+ ["JohnnyMorganz/luau-lsp",0,16,51,"≥100","live","La pieza más importante del perfil"],
+ ["luau-lang/lute",1,36,"≥100","≥100","live","Runtime del propio equipo de Luau · 750 tests"],
+ ["Roblox/creator-docs",0,49,"≥100","≥100","live","9 295 ficheros de documentación oficial"],
+ ["rojo-rbx/rojo",50,0,14,53,"live","Lento pero vivo · proyecto maduro"],
+ ["rojo-rbx/rbx-dom",26,3,25,74,"live","La base de Rojo"],
+ ["Chrrxs/robloxstudio-mcp",0,30,82,"≥100","live","MCP comunitario vivo · debug runtime y multijugador"],
+ ["lune-org/lune",52,0,31,62,"warn","Vivo a ritmo bajo · Lute se solapa"],
+ ["pesde-pkg/pesde",18,7,15,116,"warn","Gestor de paquetes moderno en ascenso"],
+ ["Kampfkarren/selene",96,0,0,7,"warn","Linter casi parado · herramienta terminada"],
+ ["JohnnyMorganz/StyLua",101,0,0,83,"warn","Formateador · 851 ficheros de test"],
+ ["rojo-rbx/rokit",108,0,0,17,"warn","Gestor de toolchain · simple y suficiente"],
+ ["Kampfkarren/full-moon",131,0,0,6,"warn","Parser que sostiene selene y StyLua"],
+ ["red-blox/Zap",63,0,1,20,"warn","Codegen de red"],
+ ["dphfox/Fusion",204,0,0,5,"warn","UI · ritmo muy bajo"],
+ ["MadStudioRoblox/ProfileStore",390,0,0,0,"warn","DataStore · posiblemente terminado"],
+ ["UpliftGames/wally",497,0,0,0,"dead","El gestor de paquetes estándar, año y medio parado"],
+ ["Sleitnick/rbxcloud",520,0,0,0,"dead","CLI de Open Cloud, abandonado"],
+ ["jsdotlua/jest-lua",609,0,0,0,"dead","El sucesor de TestEZ, también muerto"],
+ ["jsdotlua/react-lua",628,0,0,0,"dead","UI"],
+ ["matter-ecs/matter",638,0,0,0,"dead","ECS"],
+ ["Roblox/place-ci-cd-demo",706,0,0,0,"dead","La demo oficial de CI · patrón válido, código congelado"],
+ ["Sleitnick/Knit",755,0,0,0,"dead","El framework más recomendado del ecosistema"],
+ ["evaera/roblox-lua-promise",1044,0,0,0,"dead","Posiblemente terminado"],
+ ["Roblox/testez",1302,0,0,0,"dead","Muerto · sigue siendo lo que recomienda medio internet"],
+ ["l3dotdev/EzSpec",1738,0,0,0,"dead","Alternativa de testing"],
+ ["rojo-rbx/run-in-roblox",2227,0,0,0,"dead","Seis años · sustituido por MCP y Open Cloud"],
+ ["verse-lang/tree-sitter-verse",2814,0,0,0,"dead","Y además es otro lenguaje llamado Verse, no el de Epic"]];
+document.getElementById('eco').innerHTML=eco.map(([r,d,a,b,c,s,w])=>{
+ const lbl={live:"vivo",warn:"lento",dead:"parado"}[s];
+ return `<tr><td class="r${s==='dead'?' x':''}">${r}</td><td class="n">${d}</td><td class="n">${a}</td><td class="n">${b}</td><td class="n">${c}</td><td><span class="chip ${s}">${lbl}</span> ${w}</td></tr>`;}).join('');
+
+const mtx=[
+ ["Studio MCP (oficial)","Ejecutar, probar, observar en el motor","No","medio","Confianza total por diseño","✅","—","INSTALL","acc"],
+ ["Unreal MCP (UEFN)","Escribir/compilar Verse, devices, play","No","medio","Confianza total · beta de 5 días","—","✅","INSTALL con cautela","warn"],
+ ["luau-lsp","Símbolos, referencias, tipos","Parcial: LSP nativo sin servidor","negativo","Local","✅","—","INSTALL","acc"],
+ ["Rojo","Proyecto en ficheros ↔ Studio","No","neutro","Local","✅","—","INSTALL","acc"],
+ ["Hooks de verificación","Puerta de evidencia","Mecanismo sí, contenido no","bajo","Refuerza","✅","✅","INSTALL","acc"],
+ ["selene + StyLua","Lint y formato","No","bajo","Local","✅","—","INSTALL","acc"],
+ ["docs/decisiones/ + rules","Memoria de decisiones","Parcial","negativo","Ninguno","✅","✅","INSTALL","acc"],
+ ["creator-docs local","API oficial grepeable","No","negativo","Ninguno","✅","—","INSTALL","acc"],
+ ["Digests de Verse","API real de Verse","No","negativo","Ninguno","—","✅","INSTALL","acc"],
+ ["gitleaks + pre-commit","Secretos","No","cero","Refuerza","✅","✅","INSTALL","acc"],
+ ["Lune / Lute + runner","Test unitario headless","No","bajo","Local","✅","❌","INSTALL (uno)","acc"],
+ ["Spec Kit","Metodología bajo demanda","Parcial (plan mode)","bajo","Plantillas","✅","✅","INSTALL","acc"],
+ ["Open Cloud Luau Exec","CI sin GUI","No","bajo","Credenciales de producción","✅","❌","INSTALL en Fase 7","acc"],
+ ["ccusage","Medición de coste","Parcial (/usage)","cero","Sin red","✅","✅","INSTALL","acc"],
+ ["osv-scanner","Vulnerabilidades de dependencias","No","cero","Refuerza","✅","✅","INSTALL","acc"],
+ ["srt (sandbox-runtime)","Aislar binarios de terceros","Parcial","cero","Refuerza mucho","✅","✅","INSTALL","acc"],
+ ["Rokit","Fijar versiones del toolchain","No","cero","Reproducibilidad","✅","—","OPTIONAL",""],
+ ["Serena","Símbolos + edición semántica","Sí, en gran parte","~24 k de superficie","Lee y escribe código","⚠️","❌","TEST FIRST","warn"],
+ ["Repomix","Empaquetado de repo","Parcial","medio","--sandbox disponible","⚠️","⚠️","OPTIONAL",""],
+ ["MCP de GitHub","PRs, issues","No","medio","Token de GitHub","⚠️","⚠️","OPTIONAL",""],
+ ["Chrrxs/robloxstudio-mcp","Debug runtime, multijugador","No, pero el oficial casi","medio","Confianza alta","⚠️","—","TEST FIRST","warn"],
+ ["Superpowers","Metodología siempre activa","Se solapa con Spec Kit","alto y recurrente","Hook global","❌","❌","DO NOT INSTALL","dead"],
+ ["ast-grep","Búsqueda estructural","Parcial","bajo","No habla Luau","❌","❌","DO NOT INSTALL","dead"],
+ ["Graphiti / Cognee","Grafo de conocimiento","Sí, suficientemente","alto","Base de datos extra","❌","❌","DO NOT INSTALL","dead"],
+ ["basic-memory","Memoria Markdown por MCP","Sí, al principio","medio","Inyección persistente","⚠️","⚠️","DO NOT INSTALL aún","warn"],
+ ["GPT Researcher / LDR","Investigación profunda","Sí, para este dominio","alto","Red","❌","❌","DO NOT INSTALL","dead"],
+ ["TestEZ / jest-lua / EzSpec","Test unitario","—","—","Abandonados 609–1 738 días","❌","❌","DO NOT INSTALL","dead"],
+ ["Knit / Matter / react-lua","Frameworks de arquitectura","—","—","638–755 días parados","❌","❌","DO NOT INSTALL","dead"],
+ ["CQTest / Gauntlet / Automation","Test de Unreal","—","—","Incompatibles con UEFN","❌","❌","DO NOT INSTALL","dead"]];
+document.getElementById('mtx').innerHTML=mtx.map(([t,c,y,tk,s,r,u,d,cl])=>
+ `<tr><td class="r">${t}</td><td>${c}</td><td>${y}</td><td class="n">${tk}</td><td>${s}</td><td class="n">${r}</td><td class="n">${u}</td><td><span class="chip ${cl}">${d}</span></td></tr>`).join('');
+
+const lv=[
+ [1,"Escribe código bajo instrucciones","«Escribe este script» · Claude Code nativo","y","Ya","y","Ya"],
+ [2,"Planifica e implementa","+ CLAUDE.md/rules + luau-lsp + Rojo","y","Fase 2","y","Fase 6"],
+ [3,"Prueba y se corrige","+ hooks + tests + MCP del editor · <b>la frontera real</b>","y","Fase 6","p","Parcial"],
+ [4,"Feature completa de principio a fin","+ Spec Kit + decisiones + CI con Open Cloud","y","Alcanzable","n","No hoy"],
+ [5,"«Construye este juego»","Investigar → diseñar → implementar → probar → iterar","p","No fiable","n","No"]];
+document.getElementById('lv').innerHTML=lv.map(([n,t,d,rs,rl,us,ul])=>
+ `<div class="lv"><div class="n2">${n}</div><div class="t"><b>${t}</b><span>${d}</span></div><div class="st ${rs}">RBX · ${rl}</div><div class="st ${us}">UEFN · ${ul}</div></div>`).join('');
+</script>

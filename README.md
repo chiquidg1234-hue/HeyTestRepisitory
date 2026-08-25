@@ -20,5 +20,7 @@ un entorno de Claude / Claude Code.
 - **[STACK-ROBLOX-UEFN.md](STACK-ROBLOX-UEFN.md)** — arquitectura para convertir Claude Code
   en un agente de desarrollo de juegos para Roblox Studio (Luau) y UEFN (Verse).
 
+- **[stack-roblox-uefn.html](stack-roblox-uefn.html)** — versión navegable.
+
 75 repositorios del ecosistema medidos el 25-08-2026. Hallazgo principal: ambos editores ya
 traen su propio servidor MCP integrado, y el de UEFN se lanzó el 20 de agosto de 2026.
