@@ -24,3 +24,10 @@ un entorno de Claude / Claude Code.
 
 75 repositorios del ecosistema medidos el 25-08-2026. Hallazgo principal: ambos editores ya
 traen su propio servidor MCP integrado, y el de UEFN se lanzó el 20 de agosto de 2026.
+
+---
+
+## Ejecución por fases
+
+- **[fase-0-baseline/](fase-0-baseline/)** — baseline medido y reproducible (25-08-2026).
+- **[fase-1-seguridad/](fase-1-seguridad/)** — gitleaks + pre-commit + osv-scanner.

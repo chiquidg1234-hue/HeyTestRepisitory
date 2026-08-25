@@ -1,0 +1,9 @@
+# FASE 1 — puerta de secretos antes de cada commit.
+# Instalar el hook:  pre-commit install
+# Desinstalarlo:     pre-commit uninstall
+# Ejecutar a mano:   pre-commit run --all-files
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
