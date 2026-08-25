@@ -27,3 +27,16 @@ xargs -P 8 -I{} ./probe.sh {} < repositorios-evaluados.txt | sort
 
 Las estrellas, forks e issues abiertos **no** están en el CSV porque proceden de la
 página de GitHub, no de esta medición; están citadas en el informe.
+
+## Segunda investigación — Roblox / UEFN (25-08-2026)
+
+- `repositorios-roblox-uefn.txt` — los 75 repositorios del ecosistema Roblox, UEFN,
+  code-graph y testing evaluados.
+- `evidencia-roblox-uefn-2026-08-25.csv` — resultado de la medición.
+
+Mismo `probe.sh`, mismas columnas. Reproducir:
+
+```bash
+cd datos
+xargs -P 8 -I{} ./probe.sh {} < repositorios-roblox-uefn.txt | sort
+```
