@@ -1,0 +1,51 @@
+# CI nocturno para Roblox — LISTO PARA RECIBIR EL SECRETO, sin secreto dentro.
+# Copiar a .github/workflows/roblox-ci.yml
+#
+# El secreto NUNCA se escribe en un fichero. Se inyecta como variable de entorno
+# desde GitHub Secrets y sólo existe durante el paso que lo necesita.
+name: Roblox CI
+on:
+  push: { branches: [main] }
+  pull_request:
+  schedule: [{ cron: "0 3 * * *" }]   # nocturno, 03:00 UTC
+
+jobs:
+  verificacion-estatica:
+    # No necesita credenciales: corre en cualquier PR, incluidos los de forks.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar toolchain fijado
+        run: |
+          curl -sSf https://raw.githubusercontent.com/rojo-rbx/rokit/main/scripts/install.sh | bash
+          echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
+      - run: rokit install          # usa rokit.toml: versiones exactas verificadas
+      - name: Sourcemap
+        run: rojo sourcemap default.project.json --output sourcemap.json
+      - name: Tipos (src)
+        run: luau-lsp analyze --platform=roblox --defs=globalTypes.d.luau
+             --sourcemap=sourcemap.json $(find src -name '*.luau')
+      - name: Lint
+        run: selene src/
+      - name: Formato
+        run: stylua --check src/ tests/
+      - name: Tests unitarios (headless, sin Roblox)
+        run: lune run tests/run.luau
+
+  verificacion-en-motor:
+    # Este SÍ necesita credenciales. Nunca corre en PRs de forks.
+    needs: verificacion-estatica
+    if: github.event_name == 'schedule' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: roblox-open-cloud     # ← protección de entorno: aprobación manual opcional
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Ejecutar Luau en el motor via Open Cloud
+        env:
+          # El secreto vive SOLO aquí, inyectado por GitHub. No se escribe a disco.
+          ROBLOX_OPEN_CLOUD_KEY: ${{ secrets.ROBLOX_OPEN_CLOUD_KEY }}
+          ROBLOX_UNIVERSE_ID:    ${{ vars.ROBLOX_UNIVERSE_ID }}
+          ROBLOX_PLACE_ID:       ${{ vars.ROBLOX_PLACE_ID }}
+        run: python3 scripts/open_cloud_luau.py tests/engine_smoke.luau

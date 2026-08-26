@@ -1,0 +1,9 @@
+# Manifiesto de toolchain — fija las versiones EXACTAS verificadas en esta sesión.
+# Va a git: es lo que hace reproducible el entorno entre tu máquina y CI.
+#   rokit install    ← instala todo lo de abajo
+[tools]
+rojo = "rojo-rbx/rojo@7.7.0"
+luau-lsp = "JohnnyMorganz/luau-lsp@1.69.0"
+selene = "Kampfkarren/selene@0.31.0"
+stylua = "JohnnyMorganz/StyLua@2.5.2"
+lune = "lune-org/lune@0.10.5"
