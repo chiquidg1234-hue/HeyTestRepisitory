@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# rbxdocs — consulta la documentación oficial de Roblox en local.
+#
+# El corpus tiene DOS formas y hay que buscar en ambas:
+#   content/en-us/reference/engine/{classes,libraries,datatypes}/*.yaml  → firmas exactas de API
+#   content/en-us/**/*.md                                                → guías narrativas
+#
+# Uso:  rbxdocs api <Símbolo>     firma exacta (yaml)
+#       rbxdocs guide <tema>      guías (md)
+#       rbxdocs lib <biblioteca>  todas las funciones de una biblioteca Luau
+set -euo pipefail
+DOCS="${RBXDOCS:-$HOME/.local/share/creator-docs}"
+[ -d "$DOCS/content" ] || { echo "rbxdocs: no encuentro el corpus en $DOCS" >&2
+  echo "  git clone --depth 1 https://github.com/Roblox/creator-docs.git $DOCS" >&2; exit 2; }
+R="$DOCS/content/en-us/reference/engine"
+case "${1:-}" in
+  api)   grep -rn --include='*.yaml' -B2 -A6 "name: .*${2}" "$R"/classes "$R"/libraries "$R"/datatypes 2>/dev/null | head -60 ;;
+  lib)   f="$R/libraries/${2}.yaml"; [ -f "$f" ] && grep -E '^  - name:' "$f" || { echo "no existe la biblioteca '${2}'"; ls "$R/libraries" | sed 's/.yaml//' | tr '\n' ' '; }; ;;
+  guide) grep -rln --include='*.md' -i "${2}" "$DOCS/content/en-us" 2>/dev/null | head -10 ;;
+  *) sed -n '2,12p' "$0"; exit 1 ;;
+esac
