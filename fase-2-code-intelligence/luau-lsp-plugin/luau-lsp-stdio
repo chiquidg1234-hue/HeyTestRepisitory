@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Claude Code arranca los servidores LSP sin argumentos, pero luau-lsp necesita
+# el subcomando `lsp`. Este envoltorio lo añade.
+# Colócalo en el PATH (o ajusta "command" en .lsp.json a su ruta absoluta).
+exec luau-lsp lsp "$@"

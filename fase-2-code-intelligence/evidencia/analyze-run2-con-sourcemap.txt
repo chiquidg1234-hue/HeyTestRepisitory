@@ -1,0 +1,2 @@
+[INFO] Loading definitions file: @roblox - /root/.local/share/luau-lsp/globalTypes.d.luau
+[WARN] client does not allow didChangeWatchedFiles registration - automatic updating on sourcemap changes disabled

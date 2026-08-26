@@ -1,5 +1,9 @@
 # FASE 1 — Seguridad y medición
 
+> ⚠️ **Este documento tiene una corrección posterior.**
+> La afirmación «puerta validada» estaba sobredimensionada. Lee
+> **[CORRECCION.md](CORRECCION.md)** antes que este documento.
+
 **Fecha:** 25-08-2026 · **Estado:** COMPLETADA · **No se avanzó a FASE 2.**
 **Criterio de la fase:** cero impacto en `/context`. → **CUMPLIDO: +0,38 %.**
 

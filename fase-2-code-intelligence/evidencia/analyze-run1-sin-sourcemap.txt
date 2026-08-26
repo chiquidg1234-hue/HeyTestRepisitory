@@ -1,0 +1,16 @@
+[INFO] Loading definitions file: @roblox - /root/.local/share/luau-lsp/globalTypes.d.luau
+[INFO] sourcemap is disabled - automatic updating on sourcemap changes disabled
+src/ServerScriptService/InventoryService/InventoryServer.luau(20,23): TypeError: Unknown require: game/ReplicatedStorage/Shared/InventoryCore
+src/ServerScriptService/InventoryService/InventoryServer.luau(21,21): TypeError: Unknown require: game/ReplicatedStorage/Shared/ItemCatalog
+src/ServerScriptService/InventoryService/InventoryServer.luau(23,30): TypeError: Value of type 'Instance?' could be nil
+src/ServerScriptService/InventoryService/InventoryServer.luau(23,22): TypeError: Unknown require: unsupported path
+src/ServerScriptService/InventoryService/InventoryServer.luau(25,23): TypeError: Unknown type 'InventoryCore.InventoryState'
+src/ServerScriptService/InventoryService/InventoryServer.luau(26,24): TypeError: Unknown type 'InventoryCore.ItemDefinitions'
+src/ServerScriptService/InventoryService/InventoryServer.luau(53,18): TypeError: Unknown type 'ProfileStore.ProfileStoreInstance'
+src/ServerScriptService/InventoryService/init.server.luau(17,23): TypeError: Unknown require: game/ReplicatedStorage/Shared/InventoryCore
+src/ServerScriptService/InventoryService/init.server.luau(19,25): TypeError: Unknown require: unsupported path
+src/ServerScriptService/InventoryService/ProfileStore.luau(82,5): TypeError: Expected this to be '{ lock: { ownerId: T, updatedAt: number }, payload: string }', but got 'nil'
+src/ServerScriptService/InventoryService/ProfileStore.luau(120,4): TypeError: Expected this to be 'nil', but got '{| lock: {| ownerId: T, updatedAt: number |}, payload: string |}'
+src/ServerScriptService/InventoryService/ProfileStore.luau(151,4): TypeError: Expected this to be 'nil', but got '{| lock: nil, payload: string |}'
+src/StarterPlayer/StarterPlayerScripts/InventoryClient.client.luau(13,23): TypeError: Unknown require: game/ReplicatedStorage/Shared/InventoryCore
+tests/InventoryCore.spec.luau(189,2): TypeError: Function only returns 1 value, but 2 are required here

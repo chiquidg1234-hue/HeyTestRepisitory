@@ -31,3 +31,5 @@ traen su propio servidor MCP integrado, y el de UEFN se lanzó el 20 de agosto d
 
 - **[fase-0-baseline/](fase-0-baseline/)** — baseline medido y reproducible (25-08-2026).
 - **[fase-1-seguridad/](fase-1-seguridad/)** — gitleaks + pre-commit + osv-scanner.
+- **[fase-2-code-intelligence/](fase-2-code-intelligence/)** — luau-lsp: 10 errores de tipo encontrados en el baseline, 0 en la re-ejecución.
+- **[entorno-local/WINDOWS-11.md](entorno-local/WINDOWS-11.md)** — instalación en Windows 11 (corrige las instrucciones `brew` de FASE 1).

@@ -1,0 +1,30 @@
+[INFO] Loading definitions file: @roblox - /root/.local/share/luau-lsp/globalTypes.d.luau
+[WARN] client does not allow didChangeWatchedFiles registration - automatic updating on sourcemap changes disabled
+/home/user/HeyTestRepisitory/fase-0-baseline/T01-run1-salida/src/ServerScriptService/InventoryService/ProfileStore.luau [game/ServerScriptService/InventoryService/ProfileStore](82,5): TypeError: Expected this to be '{ lock: { ownerId: T, updatedAt: number }, payload: string }', but got 'nil'
+/home/user/HeyTestRepisitory/fase-0-baseline/T01-run1-salida/src/ServerScriptService/InventoryService/ProfileStore.luau [game/ServerScriptService/InventoryService/ProfileStore](120,4): TypeError: Expected this to be 'nil', but got '{| lock: {| ownerId: T, updatedAt: number |}, payload: string |}'
+/home/user/HeyTestRepisitory/fase-0-baseline/T01-run1-salida/src/ServerScriptService/InventoryService/ProfileStore.luau [game/ServerScriptService/InventoryService/ProfileStore](151,4): TypeError: Expected this to be 'nil', but got '{| lock: nil, payload: string |}'
+/home/user/HeyTestRepisitory/fase-0-baseline/T01-run1-salida/src/ServerScriptService/InventoryService/init.server.luau [game/ServerScriptService/InventoryService](38,18): TypeError: Expected this to be exactly
+	'{ _cache: {InventoryState}, _itemDefs: ItemDefinitions, _profileStore: ProfileStoreInstance }'
+but got
+	'InventoryServerInstance'
+caused by:
+  Property '_profileStore' is not compatible.
+Table type 't1 where t1 = {- Load: (t1, string, string) -> ({- errorMessage: string?, ok: 'a, payload: string -}, b...) -}' not compatible with type '{ _dataStore: DataStore, _sessionId: string }' because the former has extra field 'Load'
+/home/user/HeyTestRepisitory/fase-0-baseline/T01-run1-salida/src/ServerScriptService/InventoryService/init.server.luau [game/ServerScriptService/InventoryService](52,2): TypeError: Expected this to be exactly
+	'{ _cache: {InventoryState}, _itemDefs: ItemDefinitions, _profileStore: ProfileStoreInstance }'
+but got
+	'InventoryServerInstance'
+caused by:
+  Property '_profileStore' is not compatible.
+Table type 't1 where t1 = {- ReleaseLock: (t1, string) -> (a...) -}' not compatible with type '{ _dataStore: DataStore, _sessionId: string }' because the former has extra field 'ReleaseLock'
+/home/user/HeyTestRepisitory/fase-0-baseline/T01-run1-salida/src/ServerScriptService/InventoryService/init.server.luau [game/ServerScriptService/InventoryService](94,3): TypeError: Expected this to be exactly
+	'{ _cache: {InventoryState}, _itemDefs: ItemDefinitions, _profileStore: ProfileStoreInstance }'
+but got
+	'InventoryServerInstance'
+caused by:
+  Property '_profileStore' is not compatible.
+Table type 't1 where t1 = {- ReleaseLock: (t1, string) -> (a...) -}' not compatible with type '{ _dataStore: DataStore, _sessionId: string }' because the former has extra field 'ReleaseLock'
+/home/user/HeyTestRepisitory/fase-0-baseline/T01-run1-salida/src/ServerScriptService/InventoryService/ProfileStore.luau [game/ServerScriptService/InventoryService/ProfileStore](82,5): TypeError: Expected this to be '{ lock: { ownerId: T, updatedAt: number }, payload: string }', but got 'nil'
+/home/user/HeyTestRepisitory/fase-0-baseline/T01-run1-salida/src/ServerScriptService/InventoryService/ProfileStore.luau [game/ServerScriptService/InventoryService/ProfileStore](120,4): TypeError: Expected this to be 'nil', but got '{| lock: {| ownerId: T, updatedAt: number |}, payload: string |}'
+/home/user/HeyTestRepisitory/fase-0-baseline/T01-run1-salida/src/ServerScriptService/InventoryService/ProfileStore.luau [game/ServerScriptService/InventoryService/ProfileStore](151,4): TypeError: Expected this to be 'nil', but got '{| lock: nil, payload: string |}'
+tests/InventoryCore.spec.luau(189,2): TypeError: Function only returns 1 value, but 2 are required here

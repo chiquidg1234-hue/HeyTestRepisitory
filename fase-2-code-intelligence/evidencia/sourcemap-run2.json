@@ -1,0 +1,11 @@
+{"name":"HeyTest","className":"DataModel","children":[
+ {"name":"ReplicatedStorage","className":"ReplicatedStorage","children":[
+   {"name":"Shared","className":"Folder","children":[
+     {"name":"Inventory","className":"ModuleScript","filePaths":["src/Shared/Inventory.luau"]},
+     {"name":"ItemDatabase","className":"ModuleScript","filePaths":["src/Shared/ItemDatabase.luau"]}]}]},
+ {"name":"ServerScriptService","className":"ServerScriptService","children":[
+   {"name":"InventoryServer","className":"Script","filePaths":["src/Server/InventoryServer.server.luau"]},
+   {"name":"InventoryService","className":"ModuleScript","filePaths":["src/Server/InventoryService.luau"]}]},
+ {"name":"StarterPlayer","className":"StarterPlayer","children":[
+   {"name":"StarterPlayerScripts","className":"StarterPlayerScripts","children":[
+     {"name":"InventoryClient","className":"LocalScript","filePaths":["src/Client/InventoryClient.client.luau"]}]}]}]}

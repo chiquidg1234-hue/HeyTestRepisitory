@@ -1,0 +1,6 @@
+{
+  "name": "luau-lsp",
+  "description": "Servidor de lenguaje Luau para Claude Code: símbolos, referencias, tipos y diagnósticos en tiempo real sobre código de Roblox.",
+  "version": "1.0.0",
+  "license": "MIT"
+}

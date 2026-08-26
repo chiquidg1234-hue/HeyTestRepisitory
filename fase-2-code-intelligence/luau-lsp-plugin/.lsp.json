@@ -1,0 +1,9 @@
+{
+  "luau": {
+    "command": "luau-lsp-stdio",
+    "extensionToLanguage": {
+      ".luau": "luau",
+      ".lua": "luau"
+    }
+  }
+}
