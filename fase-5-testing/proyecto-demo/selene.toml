@@ -1,0 +1,6 @@
+std = "luau"
+[lints]
+unused_variable = "warn"
+shadowing = "warn"
+undefined_variable = "deny"
+global_usage = "deny"
