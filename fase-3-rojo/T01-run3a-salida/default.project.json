@@ -1,0 +1,38 @@
+{
+  "name": "InventorySystem",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Shared": {
+        "$path": "src/Shared"
+      },
+      "Remotes": {
+        "$className": "Folder",
+        "RequestInventory": {
+          "$className": "RemoteFunction"
+        },
+        "InventoryUpdated": {
+          "$className": "RemoteEvent"
+        },
+        "UseItem": {
+          "$className": "RemoteEvent"
+        }
+      }
+    },
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$path": "src/Server"
+    },
+
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$path": "src/Client"
+      }
+    }
+  }
+}
