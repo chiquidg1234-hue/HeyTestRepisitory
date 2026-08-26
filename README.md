@@ -33,3 +33,6 @@ traen su propio servidor MCP integrado, y el de UEFN se lanzó el 20 de agosto d
 - **[fase-1-seguridad/](fase-1-seguridad/)** — gitleaks + pre-commit + osv-scanner.
 - **[fase-2-code-intelligence/](fase-2-code-intelligence/)** — luau-lsp: 10 errores de tipo encontrados en el baseline, 0 en la re-ejecución.
 - **[entorno-local/WINDOWS-11.md](entorno-local/WINDOWS-11.md)** — instalación en Windows 11 (corrige las instrucciones `brew` de FASE 1).
+
+- **[CHECKPOINT.md](CHECKPOINT.md)** — estado global de todas las fases.
+- **[fase-4-research/](fase-4-research/)** · **[fase-5-testing/](fase-5-testing/)** · **[fase-6-motor/](fase-6-motor/)** · **[fase-7-autonomia/](fase-7-autonomia/)**
