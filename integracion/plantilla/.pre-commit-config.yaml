@@ -1,0 +1,9 @@
+# Puerta de secretos. NO es la defensa principal: gitleaks solo detectó 1 de 3
+# claves AWS válidas en la prueba de FASE 1. La regla real es
+# LOS SECRETOS NUNCA SE ESCRIBEN EN EL REPOSITORIO.
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+        name: Detectar secretos antes de commitear

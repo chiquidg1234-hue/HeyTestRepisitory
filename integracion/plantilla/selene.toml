@@ -1,0 +1,20 @@
+# ESTADO ACTUAL: std = "luau".
+#   Funciona sin red y parsea correctamente la sintaxis de tipos de Luau.
+#   NO conoce los globales de Roblox (game, workspace, script...), así que
+#   `undefined_variable` está en "allow": con este std sólo daría falsos positivos.
+#
+# PARA COMPLETARLO (necesita red, desde tu máquina, en la raíz del proyecto):
+#   selene generate-roblox-std        -> genera roblox.yml
+# y entonces cambia estas dos líneas:
+#   std = "roblox"
+#   undefined_variable = "deny"
+#
+# Medido: con std="lua51" selene da 18 parse errors en código Luau normal
+# (`export type`, anotaciones `: string`). Con std="luau", 0.
+std = "luau"
+
+[lints]
+undefined_variable = "allow"   # -> "deny" cuando exista roblox.yml
+global_usage       = "deny"
+unused_variable    = "warn"
+shadowing          = "warn"

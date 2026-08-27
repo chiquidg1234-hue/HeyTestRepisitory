@@ -131,12 +131,12 @@ para empezar.
 
 | Verificación | Estado |
 |---|---|
-| gitleaks instalado en tu máquina | ⬜ pendiente |
-| Prueba negativa de gitleaks en tu repo real | ⬜ pendiente |
-| osv-scanner instalado | ⬜ pendiente |
-| Prueba de osv-scanner con lodash | ⬜ pendiente |
-| pre-commit instalado y hook activo | ⬜ pendiente |
-| Decidir WSL2 sí/no para el sandbox | ⬜ pendiente |
+| gitleaks instalado en tu máquina | ✅ hecho (26-08-2026) |
+| Prueba negativa de gitleaks en tu repo real | ✅ hecho |
+| osv-scanner instalado | ✅ hecho |
+| Prueba de osv-scanner con lodash | ✅ hecho |
+| pre-commit instalado y hook activo | ✅ hecho |
+| Decidir WSL2 sí/no para el sandbox | ✅ decidido: **sí, más adelante**. No bloqueante |
 
-**Ninguna bloquea el avance de fases**, tal como acordamos. Quedan como checkpoint de validación
-del entorno local.
+Para instalar el stack de verificación en tu proyecto Roblox real, continúa en
+[`WINDOWS-11-INTEGRACION.md`](WINDOWS-11-INTEGRACION.md).

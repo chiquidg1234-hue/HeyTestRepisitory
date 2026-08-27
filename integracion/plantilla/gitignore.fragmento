@@ -1,0 +1,7 @@
+# --- stack de verificación Roblox (añadir al .gitignore del proyecto) ---
+sourcemap.json
+globalTypes.d.luau
+roblox.yml
+.claude/.stop-gate-bloqueos
+.claude/.aviso-selene
+.claude/settings.json.bak-*

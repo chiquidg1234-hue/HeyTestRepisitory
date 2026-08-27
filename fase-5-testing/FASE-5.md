@@ -108,3 +108,31 @@ tests). Esa división es deliberada: feedback inmediato barato, puerta final com
 | **Limitaciones** | `selene` sin std de Roblox (red); hooks probados por invocación directa, no dentro de una sesión interactiva |
 | **Pendiente de humano** | `selene generate-roblox-std` en Windows; copiar hooks a `.claude/` del proyecto real |
 | **Siguiente paso** | FASE 6 — tooling del motor (Studio MCP y UEFN MCP: ambos requieren GUI y autorización humana) |
+
+---
+
+## Corrección (27-08-2026, durante la integración)
+
+`config/luaurc-tests.json` declara `"globals": ["os.exit", "process"]`. **Está
+mal por partida doble:**
+
+- `os.exit` **no existe en Lune** (ni en Roblox). Es justo el fallo que dejó la
+  suite de `T01-run3b` sin poder dar verde nunca: pasaba 27/27 y luego reventaba
+  con `attempt to call a nil value`.
+- `process` tampoco es un global en Lune: se obtiene con
+  `require("@lune/process")`.
+
+**La solución correcta**, verificada en la integración, es el alias de tipos que
+genera `lune setup`:
+
+```json
+{ "aliases": { "lune": "~/.lune/.typedefs/0.10.5/" } }
+```
+
+Con ese alias en `tests/.luaurc`, `luau-lsp analyze --platform=standard` sí
+resuelve `require("@lune/fs")` y comprueba los tipos de los tests, en lugar de
+saltárselos como se decidió en esta fase.
+
+**Usa `integracion/plantilla/` en vez de `config/`.** Este directorio se
+conserva como registro de lo que se hizo en FASE 5, no como configuración
+recomendada.

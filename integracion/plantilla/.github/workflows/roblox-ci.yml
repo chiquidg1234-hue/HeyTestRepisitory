@@ -1,0 +1,91 @@
+# CI de Roblox — preparado para recibir el secreto, SIN secreto dentro.
+#
+# Auditoría de seguridad de este fichero (FASE 7 + integración):
+#   - El job estático no usa credenciales, así que es seguro en PRs de forks.
+#   - El job de motor está excluido del evento pull_request, de modo que un fork
+#     NO puede alcanzarlo. Además exige un environment protegido.
+#   - Permisos del token reducidos a lectura de contenido en todo el workflow.
+#   - El secreto se inyecta como variable de entorno solo en el paso que lo usa
+#     y nunca se escribe a disco ni se imprime.
+name: Roblox CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 3 * * *"     # nocturno, 03:00 UTC
+
+permissions:
+  contents: read            # mínimo imprescindible
+
+concurrency:
+  group: roblox-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificacion-estatica:
+    # Sin credenciales. Corre en cualquier PR, incluidos los de forks.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar toolchain fijado
+        run: |
+          curl -sSf https://raw.githubusercontent.com/rojo-rbx/rokit/main/scripts/install.sh | bash
+          echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
+
+      - name: rokit install
+        run: rokit install --no-trust-check
+
+      - name: Definiciones de la API de Roblox
+        # No se versionan: se descargan en cada ejecución para no quedar obsoletas.
+        run: |
+          curl -sSfL -o globalTypes.d.luau \
+            https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/main/scripts/globalTypes.d.luau
+
+      - name: Sourcemap
+        run: rojo sourcemap default.project.json --output sourcemap.json
+
+      - name: Tipos del código del juego
+        run: |
+          mapfile -t F < <(find src -name '*.luau')
+          luau-lsp analyze --platform=roblox --defs=globalTypes.d.luau \
+            --sourcemap=sourcemap.json "${F[@]}"
+
+      - name: Tipos de los tests (Lune, sin definiciones de Roblox)
+        run: |
+          lune setup
+          mapfile -t T < <(find tests -name '*.luau')
+          luau-lsp analyze --platform=standard "${T[@]}"
+
+      - name: Lint
+        # std="roblox" necesita roblox.yml; se genera aquí, que hay red.
+        run: |
+          selene generate-roblox-std
+          selene src/
+
+      - name: Formato
+        run: stylua --check src/ tests/
+
+      - name: Tests unitarios (headless, sin Roblox)
+        run: lune run tests/run.luau
+
+  verificacion-en-motor:
+    # Este SÍ necesita credenciales. Nunca corre desde un PR, luego nunca desde un fork.
+    needs: verificacion-estatica
+    if: github.event_name == 'schedule' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: roblox-open-cloud     # protección de entorno: permite exigir aprobación
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Ejecutar Luau en el motor vía Open Cloud
+        env:
+          # El secreto vive SOLO aquí, inyectado por GitHub. No se escribe a disco.
+          ROBLOX_OPEN_CLOUD_KEY: ${{ secrets.ROBLOX_OPEN_CLOUD_KEY }}
+          ROBLOX_UNIVERSE_ID: ${{ vars.ROBLOX_UNIVERSE_ID }}
+          ROBLOX_PLACE_ID: ${{ vars.ROBLOX_PLACE_ID }}
+        run: python3 scripts/open_cloud_luau.py tests/engine_smoke.luau

@@ -1,0 +1,7 @@
+# Versiones exactas verificadas en las FASES 2-6. No las subas sin volver a medir.
+[tools]
+rojo     = "rojo-rbx/rojo@7.7.0"
+luau-lsp = "JohnnyMorganz/luau-lsp@1.69.0"
+selene   = "Kampfkarren/selene@0.31.0"
+stylua   = "JohnnyMorganz/StyLua@2.5.2"
+lune     = "lune-org/lune@0.10.5"
