@@ -1,6 +1,6 @@
 # CHECKPOINT GLOBAL — estado tras la ejecución nocturna
 
-**Última actualización:** 26-08-2026 · **Rama:** `claude/github-intelligence-research-0dnet7`
+**Última actualización:** 27-08-2026 · **Rama:** `claude/github-intelligence-research-0dnet7`
 
 ## Estado por fase
 
@@ -14,7 +14,7 @@
 | 5 · Testing | ✅ COMPLETADA | Sí — 14 ejecuciones con exit code observado. **Verificación 2/2** |
 | 6 · Motor | ✅ **COMPLETADA (Roblox)** / 🔴 BLOQUEADA (UEFN) | **Sí** — ciclo verificado por el usuario en Windows, 4/4 casillas |
 | 7 · Autonomía | 🟡 **PARCIAL** | Open Cloud sí; Spec Kit parcial; `srt` no verificable |
-| — · Serena | ⏸️ No iniciada | Deliberadamente aplazada |
+| 8 · Serena | ✅ EVALUADA — **POSPONER** | Sí — 21 herramientas expuestas, **1 ejecutada, 0 simbólicas**; coste +62,5 %, beneficio 0 |
 
 ## Herramientas instaladas y verificadas
 
@@ -30,6 +30,7 @@
 | lune | 0.10.5 | ✅ | Runner propio, 4/4 y detecta bugs |
 | specify | 1.0.1 | ⚠️ parcial | Integración con Claude sin verificar |
 | srt | 1.0.0 | ❌ | Namespaces anidados no permitidos |
+| serena-agent | 1.7.0 | ⚠️ evaluada | Procedencia OK (MIT, `oraios/serena`). **Solo en venv efímero, no registrada.** POSPUESTA |
 
 ## Métricas
 
@@ -73,5 +74,8 @@ motor en la máquina del usuario (playtest + consola + corrección).
 
 ## Siguiente paso
 
-**FASE 6 cerrada para Roblox ⇒ la comparación de Serena queda desbloqueada.** Es el último
-elemento pendiente del plan original.
+**Plan original cerrado.** Ver [`AUDITORIA-FINAL.md`](AUDITORIA-FINAL.md) para el estado
+consolidado, los bloqueos reales y los 5 siguientes pasos priorizados.
+
+El siguiente paso con más valor no es instalar nada más: es **llevar el stack ya verificado al
+proyecto Roblox real**. Todo lo medido vive en un proyecto de prueba de 8 ficheros.
