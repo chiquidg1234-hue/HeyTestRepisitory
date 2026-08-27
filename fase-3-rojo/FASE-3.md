@@ -182,3 +182,25 @@ Resultado medido: **0 bloqueos de permisos**, frente a 6 en run2.
    variabilidad que no controlo.
 3. Sigue siendo un contenedor efímero.
 4. El plugin LSP sigue **sin probarse dentro de una sesión interactiva**.
+
+---
+
+## Corrección (27-08-2026)
+
+Este documento dice, sobre los 2 errores de `os.exit` en el código entregado por
+`run3b`:
+
+> *«Es un artefacto de analizar un fichero no-Roblox con `--platform=roblox`, no
+> un defecto del código.»*
+
+**Es falso.** `os.exit` **tampoco existe en Lune**. Al ejecutar esa suite se
+comprobó que pasa sus 27 comprobaciones y a continuación revienta con
+`attempt to call a nil value` en `os.exit(0)`: **nunca podía dar verde**, así que
+incumplía el requisito 6 de la TAREA-PATRON. Era un defecto real, no un artefacto.
+
+Lo que sí sigue siendo válido de este documento: analizar tests de Lune con
+`--platform=roblox` **sí** produce falsos positivos en general; simplemente, éste
+no era uno de ellos. El corte correcto en Lune es
+`require("@lune/process").exit(n)`.
+
+Ver `docs/INFORME-MAESTRO-MISION-2.md` §D-9.

@@ -40,8 +40,20 @@ Motivo concreto: `os.exit` **no existe** en Roblox — la biblioteca `os` sólo
 tiene `os.clock`, `os.date`, `os.difftime` y `os.time`. Escribir `os.exit()` en
 código de Roblox es un error de tipos garantizado.
 
-*(El código de tests, que se ejecuta en Lune o Lute y no en Roblox, sí puede usar
-`os.exit`. Por eso `src/` y `tests/` se analizan por separado.)*
+> **CORRECCIÓN (27-08-2026).** Una versión anterior de este fragmento decía que
+> «el código de tests, que se ejecuta en Lune, sí puede usar `os.exit`».
+> **Es falso: `os.exit` tampoco existe en Lune.** Una suite que lo usaba pasaba
+> sus 27 comprobaciones y luego reventaba con `attempt to call a nil value`, de
+> modo que nunca podía dar verde. En Lune el corte es
+> `require("@lune/process").exit(n)`.
+>
+> `src/` y `tests/` **sí** se analizan por separado, pero por otra razón: los
+> tests corren en Lune y usan alias `@lune/*`, así que van con
+> `--platform=standard` y el alias de tipos que genera `lune setup`.
+
+**Este fichero está superado por
+[`integracion/plantilla/CLAUDE.fragmento.md`](../integracion/plantilla/CLAUDE.fragmento.md),
+que es el que hay que pegar en el `CLAUDE.md` del proyecto.**
 
 ## Cuándo sí buscar en la web
 

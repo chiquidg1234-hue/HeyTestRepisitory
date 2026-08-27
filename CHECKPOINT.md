@@ -1,5 +1,11 @@
 # CHECKPOINT — trabajo nocturno del 27-08-2026
 
+> **Para retomar el trabajo, lee antes
+> [`docs/NEXT-SESSION-CHECKPOINT.md`](docs/NEXT-SESSION-CHECKPOINT.md).**
+> El estado consolidado de toda la misión está en
+> [`docs/INFORME-MAESTRO-MISION-2.md`](docs/INFORME-MAESTRO-MISION-2.md).
+> Este fichero es el registro concreto de la sesión del 27-08.
+
 **Rama:** `claude/github-intelligence-research-0dnet7`
 **Encargo:** integrar el stack verificado en el proyecto Roblox real. Sin
 experimentos nuevos, sin benchmarks, sin T-01, sin Serena.

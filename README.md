@@ -1,3 +1,17 @@
+> ## 📌 FUENTE DE VERDAD
+>
+> - **[docs/INFORME-MAESTRO-MISION-2.md](docs/INFORME-MAESTRO-MISION-2.md)** — estado real y
+>   final de toda la misión, con las correcciones aplicadas. **Manda sobre cualquier documento
+>   anterior que lo contradiga.**
+> - **[docs/NEXT-SESSION-CHECKPOINT.md](docs/NEXT-SESSION-CHECKPOINT.md)** — lo mínimo para
+>   retomar el trabajo en una sesión nueva.
+>
+> Los documentos de fase que hay más abajo son el registro de cómo se llegó hasta aquí.
+> Varios contienen conclusiones que **fueron corregidas después**; el informe maestro dice
+> cuáles y por qué.
+
+---
+
 # GitHub Intelligence Research
 
 Investigación independiente sobre repositorios públicos de GitHub que pueden mejorar
@@ -31,8 +45,9 @@ traen su propio servidor MCP integrado, y el de UEFN se lanzó el 20 de agosto d
 
 - **[fase-0-baseline/](fase-0-baseline/)** — baseline medido y reproducible (25-08-2026).
 - **[fase-1-seguridad/](fase-1-seguridad/)** — gitleaks + pre-commit + osv-scanner.
-- **[fase-2-code-intelligence/](fase-2-code-intelligence/)** — luau-lsp: 10 errores de tipo encontrados en el baseline, 0 en la re-ejecución.
+- **[fase-2-code-intelligence/](fase-2-code-intelligence/)** — luau-lsp encuentra los 10 errores de tipo que el baseline entregó. **Léase junto a su [`CORRECCION.md`](fase-2-code-intelligence/CORRECCION.md): la atribución causal del titular original era falsa.**
 - **[entorno-local/WINDOWS-11.md](entorno-local/WINDOWS-11.md)** — instalación en Windows 11 (corrige las instrucciones `brew` de FASE 1).
 
-- **[CHECKPOINT.md](CHECKPOINT.md)** — estado global de todas las fases.
+- **[CHECKPOINT.md](CHECKPOINT.md)** — checkpoint del trabajo del 27-08 (integración).
+- **[AUDITORIA-FINAL.md](AUDITORIA-FINAL.md)** · **[INTEGRACION.md](INTEGRACION.md)** · **[fase-8-serena/](fase-8-serena/)** · **[integracion/](integracion/)** — paquete instalable.
 - **[fase-4-research/](fase-4-research/)** · **[fase-5-testing/](fase-5-testing/)** · **[fase-6-motor/](fase-6-motor/)** · **[fase-7-autonomia/](fase-7-autonomia/)**
