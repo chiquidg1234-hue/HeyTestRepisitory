@@ -12,7 +12,7 @@
 | 3 · Rojo | ✅ COMPLETADA | H1 sí, **H2 no** |
 | 4 · Research | ✅ COMPLETADA | Sí — 7/8 preguntas, 10 ms vs 435 ms |
 | 5 · Testing | ✅ COMPLETADA | Sí — 14 ejecuciones con exit code observado. **Verificación 2/2** |
-| 6 · Motor | 🔴 **BLOQUEADA** | **No** — Studio y UEFN no existen para Linux |
+| 6 · Motor | ✅ **COMPLETADA (Roblox)** / 🔴 BLOQUEADA (UEFN) | **Sí** — ciclo verificado por el usuario en Windows, 4/4 casillas |
 | 7 · Autonomía | 🟡 **PARCIAL** | Open Cloud sí; Spec Kit parcial; `srt` no verificable |
 | — · Serena | ⏸️ No iniciada | Deliberadamente aplazada |
 
@@ -41,18 +41,37 @@
 | MCP configurados | 0 | **0** |
 | Cambios en `~/.claude` | 0 | **0** |
 
+## Hecho por el usuario (26-08-2026)
+
+| Acción | Estado |
+|---|---|
+| gitleaks, osv-scanner y pre-commit en la máquina local | ✅ hecho |
+| Prueba negativa de gitleaks en el repo real | ✅ hecho |
+| Prueba de osv-scanner con lodash | ✅ hecho |
+| **Ciclo del motor con Studio MCP** | ✅ **hecho, 4/4 casillas** |
+| **Decisión WSL2** | ✅ **SÍ, a futuro. NO bloqueante** |
+
+**Decisión WSL2 registrada:** Windows puro no tiene sandbox nativo de Claude Code. Se adopta
+WSL2 **más adelante** como entorno endurecido (Claude Code + sandbox en WSL2, Roblox Studio en
+Windows). **No es requisito para FASE 6 ni para el trabajo actual**, porque está demostrado que
+Claude Code en Windows conecta con Studio MCP sin él.
+
 ## Pendiente de intervención humana
 
-1. **Windows:** instalar el toolchain con Scoop/Rokit (`entorno-local/WINDOWS-11.md`).
+1. **UEFN:** Project Settings → Beta Access → UEFN MCP Toolset. *(único bloqueo de motor)*
 2. **`selene generate-roblox-std`** dentro del proyecto.
-3. **FASE 6:** activar el MCP de Studio y ejecutar `fase-6-motor/CICLO-A-VERIFICAR.md` en un place desechable.
-4. **UEFN:** Project Settings → Beta Access → UEFN MCP Toolset.
-5. **Open Cloud:** crear la clave acotada al universo de desarrollo y guardarla en GitHub Secrets.
-6. **`specify init`** interactivo eligiendo Claude.
-7. **Verificar `srt`** en WSL2.
-8. Copiar `fase-5-testing/hooks/` a `.claude/hooks/` del proyecto real y cablear `settings.json`.
+3. **Open Cloud:** clave acotada al universo de **desarrollo**, en GitHub Secrets.
+4. **`specify init`** interactivo eligiendo Claude · verificar `srt` en WSL2 cuando lo adoptes.
+5. Copiar `fase-5-testing/hooks/` a `.claude/hooks/` del proyecto real.
+6. Borrar `BugTestScript` del place de prueba.
+
+## Nivel de autonomía alcanzado
+
+**Nivel 3 demostrado en Roblox** (implementar → probar → observar → corregir sin ayuda), con las
+dos mitades verificadas: la estática en esta sesión (tipos + lint + tests headless, 2/2) y la del
+motor en la máquina del usuario (playtest + consola + corrección).
 
 ## Siguiente paso
 
-**FASE 6 requiere tu máquina.** Lo único que puedo avanzar sin ti es la comparación de Serena,
-que conviene hacer *después* de FASE 6.
+**FASE 6 cerrada para Roblox ⇒ la comparación de Serena queda desbloqueada.** Es el último
+elemento pendiente del plan original.

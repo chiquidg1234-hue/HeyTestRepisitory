@@ -1,6 +1,11 @@
 # FASE 6 — Tooling del motor
 
-**Fecha:** 26-08-2026 · **Estado:** **BLOQUEADA** — imposible de completar en este entorno.
+**Fecha:** 26-08-2026 · **Estado:** **COMPLETADA (Roblox)** / **BLOQUEADA (UEFN)**
+
+> **Actualización:** el ciclo del motor **se ejecutó con éxito** en Windows 11 + Claude Code +
+> Roblox Studio MCP. Ver [`CICLO-A-VERIFICAR.md`](CICLO-A-VERIFICAR.md) con las 4 casillas marcadas.
+> Lo que sigue describe por qué **este contenedor Linux** no podía hacerlo — la limitación era del
+> entorno de la sesión, no del stack.
 
 ## Por qué está bloqueada (verificado, no supuesto)
 
@@ -17,8 +22,9 @@
 GUI no hay Studio. No es una limitación de permisos que se pueda sortear: es ausencia de la
 aplicación.
 
-**No declaro este criterio cumplido.** El ciclo *implementar → playtest → leer consola →
-corregir* **no se ha demostrado**, y sin esa evidencia la fase no se cierra.
+~~**No declaro este criterio cumplido.**~~ → **Superado:** el ciclo *implementar → playtest →
+leer consola → corregir* **sí se ha demostrado**, ejecutado por el usuario en su máquina Windows.
+La evidencia es de clase «reportada por el usuario», no medida por mí en esta sesión.
 
 ## Lo que sí se ha preparado
 
