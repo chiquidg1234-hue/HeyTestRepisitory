@@ -604,6 +604,17 @@ input[type='range']::-moz-range-thumb {
   font-size: 10.5px;
   color: var(--text-faint);
 }
+.stat--wide {
+  grid-column: 1 / -1;
+}
+.stat-value--text {
+  font-size: 12.5px;
+  font-family: var(--font);
+  color: var(--text-dim);
+}
+.table-host {
+  overflow-x: auto;
+}
 
 /* ------------------------------------------------------------- timeline */
 

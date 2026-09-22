@@ -43,6 +43,8 @@ export const button = (
 
 /** Slider con etiqueta y valor en vivo. Devuelve un `set` para refrescarlo. */
 export interface SliderSpec {
+  /** Identificador estable, para estilos y para las pruebas de UI. */
+  field?: string;
   label: string;
   min: number;
   max: number;
@@ -67,6 +69,8 @@ export const slider = (spec: SliderSpec): SliderHandle => {
     max: spec.max,
     step: spec.step,
     value: spec.value,
+    'data-field': spec.field,
+    'aria-label': spec.label,
   }) as HTMLInputElement;
 
   input.addEventListener('input', () => {
@@ -83,7 +87,7 @@ export const slider = (spec: SliderSpec): SliderHandle => {
   if (spec.hint) {
     children.push(el('div', { class: 'field-hint', text: spec.hint }));
   }
-  const root = el('div', { class: 'field' }, children);
+  const root = el('div', { class: 'field', 'data-field-row': spec.field }, children);
 
   return {
     root,

@@ -12,10 +12,21 @@ import {
   type ProjectionId,
 } from './render2d/projections.js';
 import { clearNode, el, mustGet } from './ui/dom.js';
-import { state, subscribe, update, type LayoutId } from './ui/state.js';
+import { createInspectorPanel } from './ui/inspector.js';
+import type { PanelView } from './ui/panels.js';
+import { createShotPanel } from './ui/panelSliders.js';
+import {
+  state,
+  subscribe,
+  update,
+  type AppState,
+  type LayoutId,
+} from './ui/state.js';
 
 const views = new Map<ProjectionId, CourtView2D>();
+const panels: PanelView[] = [];
 let scene3d: Scene3D | null = null;
+let activePanel = 'shot';
 
 // ------------------------------------------------------------- vistas 2D
 
@@ -110,6 +121,95 @@ const syncLayout = (): void => {
   }
 };
 
+// ------------------------------------------------------------- panel
+
+const mountPanel = (): void => {
+  panels.push(createShotPanel(), createInspectorPanel());
+
+  const tabs = mustGet('panel-tabs');
+  const body = mustGet('panel-body');
+
+  for (const panel of panels) {
+    const tab = el('button', {
+      class: 'tab',
+      type: 'button',
+      role: 'tab',
+      'data-panel': panel.id,
+      text: panel.label,
+    });
+    tab.addEventListener('click', () => selectPanel(panel.id));
+    tabs.appendChild(tab);
+    body.appendChild(panel.root);
+  }
+
+  selectPanel(activePanel);
+};
+
+const selectPanel = (id: string): void => {
+  activePanel = id;
+  for (const panel of panels) {
+    panel.root.hidden = panel.id !== id;
+  }
+  for (const tab of document.querySelectorAll<HTMLElement>('[data-panel]')) {
+    tab.setAttribute('aria-selected', String(tab.dataset.panel === id));
+  }
+};
+
+/** Añade un panel despues del arranque (lo usan las fases 6 y 9). */
+export const registerPanel = (panel: PanelView): void => {
+  panels.push(panel);
+  const tab = el('button', {
+    class: 'tab',
+    type: 'button',
+    role: 'tab',
+    'data-panel': panel.id,
+    text: panel.label,
+  });
+  tab.addEventListener('click', () => selectPanel(panel.id));
+  mustGet('panel-tabs').appendChild(tab);
+  mustGet('panel-body').appendChild(panel.root);
+  panel.root.hidden = panel.id !== activePanel;
+};
+
+// ------------------------------------------------------------- barra sup.
+
+const mountTopbarRight = (): void => {
+  const host = mustGet('topbar-right');
+
+  const models: { id: AppState['model']; label: string; title: string }[] = [
+    {
+      id: 'geometric',
+      label: 'Geometrico',
+      title: 'Reflexion ideal: sin gravedad, sin arrastre, sin perdida.',
+    },
+    {
+      id: 'ballistic',
+      label: 'Balistico',
+      title: 'Gravedad, arrastre y COR. Lo que hace la pelota de verdad.',
+    },
+  ];
+
+  const group = el('div', { class: 'layout-tabs' });
+  for (const model of models) {
+    const b = el('button', {
+      class: 'tab',
+      type: 'button',
+      'data-model': model.id,
+      title: model.title,
+      text: model.label,
+    });
+    b.addEventListener('click', () => update({ model: model.id }));
+    group.appendChild(b);
+  }
+  host.appendChild(group);
+};
+
+const syncTopbar = (): void => {
+  for (const b of document.querySelectorAll<HTMLElement>('[data-model]')) {
+    b.setAttribute('aria-selected', String(b.dataset.model === state.model));
+  }
+};
+
 // ------------------------------------------------------------- timeline
 
 let scrub: HTMLInputElement;
@@ -180,6 +280,7 @@ const syncTimeline = (): void => {
 
 const redraw = (changed?: ReadonlySet<string>): void => {
   const trajectoryChanged = !changed || changed.has('trajectory');
+  if (!changed || changed.has('model')) syncTopbar();
 
   for (const view of views.values()) {
     view.draw(state.trajectory, {
@@ -202,6 +303,9 @@ const redraw = (changed?: ReadonlySet<string>): void => {
   }
 
   syncTimeline();
+  for (const panel of panels) {
+    panel.sync((changed ?? new Set()) as ReadonlySet<keyof AppState>);
+  }
 };
 
 // ------------------------------------------------------------- bucle
@@ -242,6 +346,8 @@ const boot = (): void => {
   mount2D();
   mount3D();
   mountLayoutTabs();
+  mountTopbarRight();
+  mountPanel();
   mountTimeline();
   mountKeyboard();
 
