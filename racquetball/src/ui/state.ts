@@ -18,6 +18,7 @@ import type {
   Vec3,
 } from '../core/types.js';
 import { presetById, resolvePreset } from '../core/presets.js';
+import { fromShotDoc, type ShotDoc } from '../persist/schema.js';
 import { fromAzimuthElevation, normalize, sub, v3 } from '../core/vec3.js';
 
 export type LayoutId = 'split' | '3d' | 'plan' | 'front' | 'side';
@@ -155,6 +156,14 @@ export const update = (patch: Partial<AppState>): void => {
 /** Fuerza un redibujo completo (cambio de tema, de tamano, de jugada). */
 export const refresh = (): void => {
   emit(new Set(Object.keys(state) as (keyof AppState)[]));
+};
+
+/** Aplica un tiro guardado o compartido. Ignora lo que no entienda. */
+export const applyShotDoc = (doc: ShotDoc | unknown): boolean => {
+  const parsed = fromShotDoc(doc);
+  if (!parsed) return false;
+  update({ ...parsed, presetId: null, aim: null, playhead: 0, playing: false });
+  return true;
 };
 
 /**

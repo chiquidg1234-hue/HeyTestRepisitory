@@ -6,6 +6,10 @@
 import './style.css';
 
 import { unfoldFirstSideBounce } from './core/unfold.js';
+import { canvasToPng, svgToPng } from './persist/exportPng.js';
+import { DOC_VERSION, toShotDoc } from './persist/schema.js';
+import { readHashDoc, syncHash } from './persist/share.js';
+import { loadViewPrefs, storeViewPrefs } from './persist/storage.js';
 import { CourtView2D } from './render2d/courtSvg.js';
 import { CAMERA_PRESETS, Scene3D } from './render3d/scene.js';
 import {
@@ -20,9 +24,12 @@ import {
 } from './ui/dragInput.js';
 import { createInspectorPanel } from './ui/inspector.js';
 import type { PanelView } from './ui/panels.js';
+import { createLibraryPanel } from './ui/panelLibrary.js';
+import { downloadBlock, openModal } from './ui/modal.js';
 import { createPresetPanel } from './ui/panelPresets.js';
 import { createShotPanel } from './ui/panelSliders.js';
 import {
+  applyShotDoc,
   state,
   subscribe,
   update,
@@ -138,7 +145,12 @@ const syncLayout = (): void => {
 // ------------------------------------------------------------- panel
 
 const mountPanel = (): void => {
-  panels.push(createShotPanel(), createPresetPanel(), createInspectorPanel());
+  panels.push(
+    createShotPanel(),
+    createPresetPanel(),
+    createInspectorPanel(),
+    createLibraryPanel(),
+  );
 
   const tabs = mustGet('panel-tabs');
   const body = mustGet('panel-body');
@@ -226,6 +238,59 @@ const mountTopbarRight = (): void => {
   });
   serve.addEventListener('click', () => update({ serveMode: !state.serveMode }));
   host.appendChild(serve);
+
+  const png = el('button', {
+    class: 'btn',
+    type: 'button',
+    title: 'Exportar una vista a PNG',
+    text: 'PNG',
+  });
+  png.addEventListener('click', () => openExportModal());
+  host.appendChild(png);
+};
+
+// ------------------------------------------------------------- export PNG
+
+const openExportModal = (): void => {
+  const status = el('div', { class: 'field-hint', text: 'Elige que vista exportar.' });
+  const out = el('div');
+
+  const run = async (label: string, make: () => Promise<{ dataUrl: string }>) => {
+    status.textContent = 'Generando…';
+    clearNode(out);
+    try {
+      const { dataUrl } = await make();
+      status.textContent = '';
+      out.appendChild(downloadBlock(dataUrl, `racquetball-${label}.png`, true));
+    } catch (err) {
+      status.textContent = `No se pudo exportar: ${(err as Error).message}`;
+    }
+  };
+
+  const buttons: Node[] = [];
+  for (const projection of PROJECTIONS) {
+    const b = el('button', { class: 'btn', type: 'button', text: projection.label });
+    b.addEventListener('click', () => {
+      const view = views.get(projection.id);
+      if (view) void run(projection.id, () => svgToPng(view.svg));
+    });
+    buttons.push(b);
+  }
+  if (scene3d) {
+    const b = el('button', { class: 'btn', type: 'button', text: '3D' });
+    b.addEventListener('click', () => {
+      scene3d!.invalidate();
+      scene3d!.render();
+      void run('3d', async () => canvasToPng(scene3d!.renderer.domElement));
+    });
+    buttons.push(b);
+  }
+
+  openModal('Exportar a PNG', [
+    el('div', { class: 'copy-actions' }, buttons),
+    status,
+    out,
+  ]);
 };
 
 const syncTopbar = (): void => {
@@ -304,6 +369,15 @@ const syncTimeline = (): void => {
 
 // ------------------------------------------------------------- redibujo
 
+/**
+ * `changed` sin valor significa "puede haber cambiado todo": es el caso
+ * del arranque y el de restaurar un tiro desde la URL. Los paneles tienen
+ * que recibir el conjunto COMPLETO de claves, no uno vacio, o los sliders
+ * se quedan mostrando los valores con los que se construyeron.
+ */
+const ALL_KEYS = (): ReadonlySet<keyof AppState> =>
+  new Set(Object.keys(state) as (keyof AppState)[]);
+
 const redraw = (changed?: ReadonlySet<string>): void => {
   const trajectoryChanged = !changed || changed.has('trajectory');
   if (!changed || changed.has('model') || changed.has('serveMode')) syncTopbar();
@@ -336,9 +410,8 @@ const redraw = (changed?: ReadonlySet<string>): void => {
   }
 
   syncTimeline();
-  for (const panel of panels) {
-    panel.sync((changed ?? new Set()) as ReadonlySet<keyof AppState>);
-  }
+  const panelKeys = (changed as ReadonlySet<keyof AppState>) ?? ALL_KEYS();
+  for (const panel of panels) panel.sync(panelKeys);
 };
 
 // ------------------------------------------------------------- bucle
@@ -375,6 +448,23 @@ const mountKeyboard = (): void => {
 
 // ------------------------------------------------------------- arranque
 
+/** El hash siempre refleja el tiro actual: copiar la URL ya comparte. */
+const pushHash = (): void => {
+  syncHash({ v: DOC_VERSION, shot: toShotDoc(state) });
+};
+
+const restoreFromUrlAndStorage = (): void => {
+  // El enlace manda sobre lo guardado: si alguien abre una URL
+  // compartida, quiere ver ESE tiro, no el suyo de ayer.
+  const prefs = loadViewPrefs();
+  if (prefs.l) update({ layout: prefs.l as LayoutId });
+  if (prefs.mi) update({ mirror: true });
+  if (prefs.sv) update({ serveMode: true });
+
+  const doc = readHashDoc();
+  if (doc) applyShotDoc(doc.shot);
+};
+
 const boot = (): void => {
   mount2D();
   mount3D();
@@ -384,16 +474,27 @@ const boot = (): void => {
   mountTimeline();
   mountKeyboard();
 
+  restoreFromUrlAndStorage();
+
   subscribe((_s, changed) => {
     if (changed.has('layout')) {
       syncLayout();
       scene3d?.resize();
+    }
+    if (changed.has('shot') || changed.has('model')) pushHash();
+    if (changed.has('layout') || changed.has('mirror') || changed.has('serveMode')) {
+      storeViewPrefs({
+        l: state.layout,
+        mi: state.mirror ? 1 : 0,
+        sv: state.serveMode ? 1 : 0,
+      });
     }
     redraw(changed as ReadonlySet<string>);
   });
 
   syncLayout();
   redraw();
+  pushHash();
   requestAnimationFrame(frame);
 };
 

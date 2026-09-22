@@ -74,6 +74,10 @@ export class Scene3D {
       canvas,
       antialias: true,
       alpha: false,
+      // Necesario para poder exportar el lienzo a PNG: sin esto,
+      // toDataURL devuelve una imagen en blanco fuera del frame del
+      // render.
+      preserveDrawingBuffer: true,
     });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
