@@ -64,6 +64,21 @@ export const attachPlanInput = (view: CourtView2D): void => {
   svg.addEventListener('pointerdown', (e) => {
     if (e.button !== 0) return;
     const point = toCourt(e);
+
+    // FASE 10: mientras se esta eligiendo objetivo, el clic no mueve al
+    // jugador, marca donde tiene que caer la pelota.
+    if (state.targetPickMode) {
+      update({
+        solveTarget: {
+          x: point.x,
+          z: point.z,
+          bounceIndex: state.solveTarget?.bounceIndex ?? 1,
+        },
+      });
+      e.preventDefault();
+      return;
+    }
+
     const nearPlayer =
       Math.hypot(point.x - state.origin.x, point.z - state.origin.z) < 0.55;
 

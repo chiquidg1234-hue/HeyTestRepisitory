@@ -48,6 +48,11 @@ export interface AppState {
   mirror: boolean;
   serveMode: boolean;
 
+  // --- problema inverso (fase 10) ---
+  solveTarget: { x: number; z: number; bounceIndex: 1 | 2 } | null;
+  /** Mientras esta activo, un clic en la planta elige el objetivo. */
+  targetPickMode: boolean;
+
   // --- input ---
   inputMode: InputMode;
   /** Punto de mira en la pared frontal, si el modo clic+arrastre lo fijo. */
@@ -103,6 +108,9 @@ export const state: AppState = {
   layout: 'split',
   mirror: false,
   serveMode: false,
+
+  solveTarget: null,
+  targetPickMode: false,
 
   inputMode: 'sliders',
   aim: null,

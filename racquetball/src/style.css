@@ -468,6 +468,25 @@ button {
   stroke-width: 0.08;
   stroke-linejoin: round;
 }
+.target-ring {
+  fill: none;
+  stroke: var(--warn);
+  stroke-width: 0.045;
+  stroke-dasharray: 0.16 0.12;
+}
+.target-dot {
+  fill: var(--warn);
+}
+.target-label {
+  fill: var(--warn);
+  text-anchor: middle;
+  dominant-baseline: middle;
+  paint-order: stroke;
+  stroke: var(--court-fill);
+  stroke-width: 0.09;
+  stroke-linejoin: round;
+  font-weight: 600;
+}
 .aim-guide {
   stroke: var(--aim);
   stroke-width: 0.055;
@@ -735,6 +754,12 @@ input[type='range']::-moz-range-thumb {
   overflow-x: auto;
 }
 
+.solve-result {
+  margin-top: 10px;
+}
+.solve-result:empty {
+  display: none;
+}
 .verdict {
   background: var(--bg-sunken);
   border: 1px solid var(--border-soft);

@@ -27,6 +27,7 @@ import type { PanelView } from './ui/panels.js';
 import { createLibraryPanel } from './ui/panelLibrary.js';
 import { downloadBlock, openModal } from './ui/modal.js';
 import { createPresetPanel } from './ui/panelPresets.js';
+import { createSolvePanel } from './ui/panelSolve.js';
 import { createShotPanel } from './ui/panelSliders.js';
 import {
   applyShotDoc,
@@ -148,6 +149,7 @@ const mountPanel = (): void => {
   panels.push(
     createShotPanel(),
     createPresetPanel(),
+    createSolvePanel(),
     createInspectorPanel(),
     createLibraryPanel(),
   );
@@ -394,6 +396,7 @@ const redraw = (changed?: ReadonlySet<string>): void => {
       playhead: state.playhead,
       origin: state.shot.origin,
       aim: state.aim,
+      target: state.solveTarget,
     });
   }
 

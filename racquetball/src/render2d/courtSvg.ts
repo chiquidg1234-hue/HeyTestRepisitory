@@ -30,6 +30,8 @@ export interface TrajectoryDrawOptions {
   aim?: Vec3 | null;
   /** Trayectorias secundarias, mas apagadas (jugadas encadenadas). */
   ghosts?: Trajectory[];
+  /** Objetivo del problema inverso (fase 10). Solo se dibuja en planta. */
+  target?: { x: number; z: number; bounceIndex: 1 | 2 } | null;
 }
 
 export class CourtView2D {
@@ -305,6 +307,9 @@ export class CourtView2D {
       this.drawExitTail(trajectory);
     }
 
+    if (opts.target && this.projection.id === 'plan') {
+      this.drawTarget(opts.target);
+    }
     if (opts.origin) this.drawOrigin(opts.origin);
     if (opts.aim) this.drawAim(opts.aim);
     if (trajectory && opts.playhead != null) {
@@ -396,6 +401,25 @@ export class CourtView2D {
       },
       this.gMarkers,
     ).textContent = 'fuera';
+  }
+
+  private drawTarget(t: { x: number; z: number; bounceIndex: 1 | 2 }): void {
+    const pt = this.p({ x: t.x, y: 0, z: t.z });
+    const g = svgEl('g', { class: 'target-marker' }, this.gMarkers);
+    svgEl('circle', { class: 'target-ring', cx: pt.u, cy: pt.v, r: 0.42 }, g);
+    svgEl('circle', { class: 'target-ring', cx: pt.u, cy: pt.v, r: 0.2 }, g);
+    svgEl('circle', { class: 'target-dot', cx: pt.u, cy: pt.v, r: 0.07 }, g);
+    svgEl(
+      'text',
+      {
+        class: 'target-label',
+        x: pt.u,
+        y: pt.v - 0.62,
+        'font-size': 0.26,
+      },
+      g,
+    ).textContent =
+      t.bounceIndex === 1 ? '1er bote en el piso' : '2o bote en el piso';
   }
 
   private drawOrigin(origin: Vec3): void {
