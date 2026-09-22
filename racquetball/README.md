@@ -41,6 +41,14 @@ El script de empaquetado verifica que el codigo que queda dentro del HTML es byt
 el mismo que el del bundle. No es paranoia: ese guardia existe porque una version
 anterior producia un archivo roto de forma silenciosa (ver `DECISIONES.md`).
 
+```bash
+npm run build:artifact
+```
+
+Deja ademas `dist/artifact.html`: la misma pagina sin `<!doctype>`, `<html>`, `<head>` ni
+`<body>`, porque el contenedor de Artifact de Claude aporta esos envoltorios. Se genera a
+partir del archivo unico ya verificado, asi que las dos salidas no pueden divergir.
+
 ---
 
 ## Como se usa
