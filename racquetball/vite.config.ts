@@ -8,13 +8,8 @@ export default defineConfig({
     outDir: 'dist',
     assetsInlineLimit: 100_000_000, // todo inline: el destino es un solo archivo
     cssCodeSplit: false,
-    rollupOptions: {
-      output: {
-        // Un solo chunk. El script de inline de despues lo mete en el HTML.
-        manualChunks: undefined,
-        inlineDynamicImports: true,
-      },
-    },
+    // Un solo chunk: el script de inline de despues lo mete en el HTML.
+    codeSplitting: false,
   },
   test: {
     environment: 'node',
