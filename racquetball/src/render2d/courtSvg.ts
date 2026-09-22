@@ -7,6 +7,7 @@
 
 import { BALL, COURT, SERVICE_ZONE } from '../core/constants.js';
 import type { Trajectory, Vec3 } from '../core/types.js';
+import type { UnfoldedCourt } from '../core/unfold.js';
 import { positionAt, splitByBounce } from '../core/trajectory-utils.js';
 import { length, normalize } from '../core/vec3.js';
 import type { Point2, Projection } from './projections.js';
@@ -42,6 +43,7 @@ export class CourtView2D {
   private readonly gMarkers: SVGGElement;
   private readonly gBall: SVGGElement;
   private readonly gGuide: SVGGElement;
+  private readonly gUnfold: SVGGElement;
 
   constructor(projection: Projection, options: CourtView2DOptions = {}) {
     this.projection = projection;
@@ -55,6 +57,7 @@ export class CourtView2D {
       'data-projection': projection.id,
     });
 
+    this.gUnfold = svgEl('g', { class: 'layer-unfold' }, this.svg);
     this.gStatic = svgEl('g', { class: 'layer-static' }, this.svg);
     this.gOverlay = svgEl('g', { class: 'layer-overlay' }, this.svg);
     this.gGhosts = svgEl('g', { class: 'layer-ghosts' }, this.svg);
@@ -444,6 +447,73 @@ export class CourtView2D {
       },
       this.gBall,
     );
+  }
+
+  /**
+   * FASE 6 — Dibuja la cancha desplegada y la recta hacia el punto
+   * espejado. Solo tiene sentido en planta: es la vista donde el rebote
+   * en una lateral se lee como un doblez.
+   */
+  setUnfold(u: UnfoldedCourt | null): void {
+    clear(this.gUnfold);
+    if (!u || this.projection.id !== 'plan') {
+      this.resetViewBox();
+      return;
+    }
+
+    const g = this.gUnfold;
+
+    svgEl(
+      'rect',
+      {
+        class: 'unfold-court',
+        x: u.rect.x0,
+        y: u.rect.z0,
+        width: u.rect.x1 - u.rect.x0,
+        height: u.rect.z1 - u.rect.z0,
+      },
+      g,
+    );
+
+    if (u.mirroredSamples.length > 1) {
+      svgEl(
+        'polyline',
+        {
+          class: 'unfold-path',
+          points: pointsAttr(u.mirroredSamples.map((s) => this.p(s.p))),
+        },
+        g,
+      );
+    }
+
+    const a = this.p(u.straight[0]);
+    const b = this.p(u.straight[1]);
+    svgEl(
+      'line',
+      { class: 'unfold-straight', x1: a.u, y1: a.v, x2: b.u, y2: b.v },
+      g,
+    );
+
+    svgEl(
+      'circle',
+      { class: 'unfold-target', cx: b.u, cy: b.v, r: 0.24 },
+      g,
+    );
+    svgEl(
+      'text',
+      {
+        class: 'unfold-label',
+        x: b.u,
+        y: b.v + 0.55,
+        'font-size': 0.26,
+      },
+      g,
+    ).textContent = u.exact ? 'punto espejado' : 'punto espejado (aprox.)';
+
+    // Encuadrar cancha real y espejo a la vez.
+    const minU = Math.min(0, u.rect.x0) - PAD;
+    const maxU = Math.max(this.projection.width, u.rect.x1) + PAD;
+    this.setViewBox(minU, -PAD, maxU - minU, this.projection.height + PAD * 2);
   }
 
   /**

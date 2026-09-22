@@ -17,6 +17,7 @@ import type {
   Trajectory,
   Vec3,
 } from '../core/types.js';
+import { presetById, resolvePreset } from '../core/presets.js';
 import { fromAzimuthElevation, normalize, sub, v3 } from '../core/vec3.js';
 
 export type LayoutId = 'split' | '3d' | 'plan' | 'front' | 'side';
@@ -154,6 +155,26 @@ export const update = (patch: Partial<AppState>): void => {
 /** Fuerza un redibujo completo (cambio de tema, de tamano, de jugada). */
 export const refresh = (): void => {
   emit(new Set(Object.keys(state) as (keyof AppState)[]));
+};
+
+/**
+ * Carga un preset desde donde este parado el jugador. El preset decide el
+ * punto de mira; el azimut y la elevacion salen de ahi. A partir de ese
+ * momento los sliders mandan: cualquier cambio suelta el preset.
+ */
+export const loadPreset = (id: string): void => {
+  const preset = presetById(id);
+  if (!preset) return;
+  const resolved = resolvePreset(preset, state.origin);
+  update({
+    origin: resolved.origin,
+    azimuthDeg: resolved.azimuthDeg,
+    elevationDeg: resolved.elevationDeg,
+    speed: resolved.speed,
+    aim: resolved.target,
+    presetId: id,
+    ...(preset.prefersBallistic ? { model: 'ballistic' as const } : {}),
+  });
 };
 
 /**

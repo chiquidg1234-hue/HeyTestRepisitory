@@ -5,6 +5,7 @@
 
 import './style.css';
 
+import { unfoldFirstSideBounce } from './core/unfold.js';
 import { CourtView2D } from './render2d/courtSvg.js';
 import { CAMERA_PRESETS, Scene3D } from './render3d/scene.js';
 import {
@@ -19,6 +20,7 @@ import {
 } from './ui/dragInput.js';
 import { createInspectorPanel } from './ui/inspector.js';
 import type { PanelView } from './ui/panels.js';
+import { createPresetPanel } from './ui/panelPresets.js';
 import { createShotPanel } from './ui/panelSliders.js';
 import {
   state,
@@ -136,7 +138,7 @@ const syncLayout = (): void => {
 // ------------------------------------------------------------- panel
 
 const mountPanel = (): void => {
-  panels.push(createShotPanel(), createInspectorPanel());
+  panels.push(createShotPanel(), createPresetPanel(), createInspectorPanel());
 
   const tabs = mustGet('panel-tabs');
   const body = mustGet('panel-body');
@@ -293,6 +295,13 @@ const syncTimeline = (): void => {
 const redraw = (changed?: ReadonlySet<string>): void => {
   const trajectoryChanged = !changed || changed.has('trajectory');
   if (!changed || changed.has('model')) syncTopbar();
+
+  const plan = views.get('plan');
+  if (plan && (!changed || changed.has('trajectory') || changed.has('mirror'))) {
+    plan.setUnfold(
+      state.mirror ? unfoldFirstSideBounce(state.trajectory) : null,
+    );
+  }
 
   for (const view of views.values()) {
     view.draw(state.trajectory, {
