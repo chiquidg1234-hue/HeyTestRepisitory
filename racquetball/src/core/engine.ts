@@ -3,6 +3,7 @@
  * simulacion; no importan `engine-geometric` ni `engine-ballistic` a mano.
  */
 
+import { simulateBallistic } from './engine-ballistic.js';
 import { simulateGeometric } from './engine-geometric.js';
 import type { Shot, SimOptions, Trajectory } from './types.js';
 
@@ -11,9 +12,8 @@ export const simulate = (shot: Shot, opts: SimOptions = {}): Trajectory => {
     case 'geometric':
       return simulateGeometric(shot, opts);
     case 'ballistic':
-      // FASE 7. Hasta entonces, el geometrico es el unico motor.
-      return simulateGeometric(shot, opts);
+      return simulateBallistic(shot, opts);
   }
 };
 
-export { simulateGeometric };
+export { simulateBallistic, simulateGeometric };

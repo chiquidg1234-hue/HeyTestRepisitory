@@ -10,6 +10,8 @@
  *   Z -> fondo.   0 = pared frontal,   12.192 = pared trasera
  */
 
+import type { SurfaceId } from './types.js';
+
 export const FT = 0.3048;
 export const IN = 0.0254;
 
@@ -77,6 +79,20 @@ export const BALL_AREA = Math.PI * BALL.radius * BALL.radius;
  */
 export const DRAG_K =
   (0.5 * AIR_DENSITY * BALL.dragCoefficient * BALL_AREA) / BALL.mass;
+
+/**
+ * COR normal por superficie. Se expone aunque al principio todas valgan lo
+ * mismo: una pared frontal de cristal y un piso de madera no se comportan
+ * igual, y el dia que se calibre cada una el motor ya lo admite.
+ */
+export const SURFACE_COR: Record<SurfaceId, number> = {
+  front: BALL.restitution,
+  back: BALL.restitution,
+  left: BALL.restitution,
+  right: BALL.restitution,
+  floor: BALL.restitution,
+  ceiling: BALL.restitution,
+};
 
 /** Velocidades de referencia, para calibrar sliders y presets (m/s). */
 export const SPEED = {
