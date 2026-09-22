@@ -6,6 +6,7 @@
 import './style.css';
 
 import { CourtView2D } from './render2d/courtSvg.js';
+import { CAMERA_PRESETS, Scene3D } from './render3d/scene.js';
 import {
   PROJECTIONS,
   type ProjectionId,
@@ -14,6 +15,7 @@ import { clearNode, el, mustGet } from './ui/dom.js';
 import { state, subscribe, update, type LayoutId } from './ui/state.js';
 
 const views = new Map<ProjectionId, CourtView2D>();
+let scene3d: Scene3D | null = null;
 
 // ------------------------------------------------------------- vistas 2D
 
@@ -29,6 +31,45 @@ const mount2D = (): void => {
       el('div', { class: 'viewport-hint', text: projection.hint }),
     );
     views.set(projection.id, view);
+  }
+};
+
+// ------------------------------------------------------------- vista 3D
+
+const mount3D = (): void => {
+  const canvas = mustGet<HTMLCanvasElement>('canvas3d');
+  try {
+    scene3d = new Scene3D(canvas);
+  } catch (err) {
+    // Sin WebGL la app sigue siendo util: las tres vistas 2D lo cuentan
+    // todo menos la sensacion de volumen.
+    console.warn('WebGL no disponible, se sigue solo con las vistas 2D', err);
+    mustGet('viewport-3d').appendChild(
+      el('div', {
+        class: 'viewport-hint',
+        style: 'opacity:1;top:50%;text-align:center',
+        text: 'Este navegador no puede dibujar 3D. Las vistas 2D siguen funcionando.',
+      }),
+    );
+    return;
+  }
+
+  const host = mustGet('camera-presets');
+  for (const preset of CAMERA_PRESETS) {
+    const b = el('button', {
+      class: 'btn',
+      type: 'button',
+      'data-camera': preset.id,
+      text: preset.label,
+    });
+    b.addEventListener('click', () => {
+      scene3d?.applyCameraPreset(preset.id);
+      for (const other of host.querySelectorAll('[data-camera]')) {
+        other.classList.toggle('btn--active', other === b);
+      }
+    });
+    if (preset.id === 'behind') b.classList.add('btn--active');
+    host.appendChild(b);
   }
 };
 
@@ -137,7 +178,9 @@ const syncTimeline = (): void => {
 
 // ------------------------------------------------------------- redibujo
 
-const redraw = (): void => {
+const redraw = (changed?: ReadonlySet<string>): void => {
+  const trajectoryChanged = !changed || changed.has('trajectory');
+
   for (const view of views.values()) {
     view.draw(state.trajectory, {
       playhead: state.playhead,
@@ -145,6 +188,19 @@ const redraw = (): void => {
       aim: state.aim,
     });
   }
+
+  if (scene3d) {
+    // Reconstruir el tubo cuesta; el playhead se mueve cada frame y no
+    // necesita tocarlo.
+    if (trajectoryChanged) {
+      scene3d.trajectory.setTrajectory(state.trajectory);
+      scene3d.trajectory.setOrigin(state.shot.origin);
+    }
+    if (!changed || changed.has('aim')) scene3d.trajectory.setAim(state.aim);
+    scene3d.trajectory.setPlayhead(state.playhead);
+    scene3d.invalidate();
+  }
+
   syncTimeline();
 };
 
@@ -163,6 +219,7 @@ const frame = (now: number): void => {
     else update({ playhead: next });
   }
 
+  scene3d?.render();
   requestAnimationFrame(frame);
 };
 
@@ -183,13 +240,17 @@ const mountKeyboard = (): void => {
 
 const boot = (): void => {
   mount2D();
+  mount3D();
   mountLayoutTabs();
   mountTimeline();
   mountKeyboard();
 
   subscribe((_s, changed) => {
-    if (changed.has('layout')) syncLayout();
-    redraw();
+    if (changed.has('layout')) {
+      syncLayout();
+      scene3d?.resize();
+    }
+    redraw(changed as ReadonlySet<string>);
   });
 
   syncLayout();
