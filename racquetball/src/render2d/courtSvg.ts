@@ -41,6 +41,7 @@ export class CourtView2D {
   private readonly gTrajectory: SVGGElement;
   private readonly gMarkers: SVGGElement;
   private readonly gBall: SVGGElement;
+  private readonly gGuide: SVGGElement;
 
   constructor(projection: Projection, options: CourtView2DOptions = {}) {
     this.projection = projection;
@@ -60,6 +61,7 @@ export class CourtView2D {
     this.gTrajectory = svgEl('g', { class: 'layer-trajectory' }, this.svg);
     this.gMarkers = svgEl('g', { class: 'layer-markers' }, this.svg);
     this.gBall = svgEl('g', { class: 'layer-ball' }, this.svg);
+    this.gGuide = svgEl('g', { class: 'layer-guide' }, this.svg);
 
     this.drawStatic(options);
   }
@@ -442,6 +444,68 @@ export class CourtView2D {
       },
       this.gBall,
     );
+  }
+
+  /**
+   * Guia de apuntado mientras se arrastra: linea desde el origen hasta el
+   * puntero y el numero de velocidad en vivo. Sin el numero, el arrastre
+   * es un gesto a ciegas.
+   */
+  showAimGuide(from: Vec3, to: Vec3, label: string): void {
+    clear(this.gGuide);
+    const a = this.p(from);
+    const b = this.p(to);
+
+    svgEl(
+      'line',
+      { class: 'aim-guide', x1: a.u, y1: a.v, x2: b.u, y2: b.v },
+      this.gGuide,
+    );
+
+    const dx = b.u - a.u;
+    const dy = b.v - a.v;
+    const len = Math.hypot(dx, dy) || 1;
+    const headLen = 0.3;
+    const nx = dx / len;
+    const ny = dy / len;
+    for (const side of [1, -1]) {
+      const px = -ny * side * headLen * 0.5;
+      const py = nx * side * headLen * 0.5;
+      svgEl(
+        'line',
+        {
+          class: 'aim-guide',
+          x1: b.u,
+          y1: b.v,
+          x2: b.u - nx * headLen + px,
+          y2: b.v - ny * headLen + py,
+        },
+        this.gGuide,
+      );
+    }
+
+    const mid = { u: (a.u + b.u) / 2, v: (a.v + b.v) / 2 };
+    svgEl(
+      'rect',
+      {
+        class: 'aim-guide-chip',
+        x: mid.u - 0.62,
+        y: mid.v - 0.24,
+        width: 1.24,
+        height: 0.48,
+        rx: 0.12,
+      },
+      this.gGuide,
+    );
+    svgEl(
+      'text',
+      { class: 'aim-guide-label', x: mid.u, y: mid.v, 'font-size': 0.3 },
+      this.gGuide,
+    ).textContent = label;
+  }
+
+  hideAimGuide(): void {
+    clear(this.gGuide);
   }
 
   /** Reescala el viewBox. Lo usa el zoom de la pizarra. */

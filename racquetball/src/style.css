@@ -434,6 +434,26 @@ button {
   stroke: var(--aim);
   stroke-width: 0.035;
 }
+.aim-guide {
+  stroke: var(--aim);
+  stroke-width: 0.055;
+  stroke-linecap: round;
+}
+.aim-guide-chip {
+  fill: rgba(9, 13, 19, 0.92);
+  stroke: var(--aim);
+  stroke-width: 0.025;
+}
+.aim-guide-label {
+  fill: var(--aim);
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.court2d--interactive {
+  cursor: crosshair;
+}
 .ball-dot {
   fill: #fff;
   stroke: var(--traj);

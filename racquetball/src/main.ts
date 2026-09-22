@@ -12,6 +12,11 @@ import {
   type ProjectionId,
 } from './render2d/projections.js';
 import { clearNode, el, mustGet } from './ui/dom.js';
+import {
+  attach3DInput,
+  attachFrontInput,
+  attachPlanInput,
+} from './ui/dragInput.js';
 import { createInspectorPanel } from './ui/inspector.js';
 import type { PanelView } from './ui/panels.js';
 import { createShotPanel } from './ui/panelSliders.js';
@@ -43,6 +48,11 @@ const mount2D = (): void => {
     );
     views.set(projection.id, view);
   }
+
+  // Modo de input A. La lateral se deja de solo lectura: descarta X, asi
+  // que un clic ahi no puede decidir donde esta parado el jugador.
+  attachPlanInput(views.get('plan')!);
+  attachFrontInput(views.get('front')!);
 };
 
 // ------------------------------------------------------------- vista 3D
@@ -64,6 +74,8 @@ const mount3D = (): void => {
     );
     return;
   }
+
+  attach3DInput(scene3d);
 
   const host = mustGet('camera-presets');
   for (const preset of CAMERA_PRESETS) {
