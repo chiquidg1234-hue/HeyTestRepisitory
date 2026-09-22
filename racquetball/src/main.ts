@@ -5,28 +5,41 @@
 
 import './style.css';
 
+import { cloneBoard } from './core/board.js';
+import { simulate } from './core/engine.js';
 import { unfoldFirstSideBounce } from './core/unfold.js';
+import { BoardOverlay } from './render2d/overlay.js';
 import { canvasToPng, svgToPng } from './persist/exportPng.js';
 import { DOC_VERSION, toShotDoc } from './persist/schema.js';
 import { readHashDoc, syncHash } from './persist/share.js';
-import { loadViewPrefs, storeViewPrefs } from './persist/storage.js';
+import {
+  loadBoard,
+  loadPlays,
+  loadViewPrefs,
+  storeBoard,
+  storeViewPrefs,
+} from './persist/storage.js';
+import { fromShotDoc } from './persist/schema.js';
 import { CourtView2D } from './render2d/courtSvg.js';
 import { CAMERA_PRESETS, Scene3D } from './render3d/scene.js';
 import {
   PROJECTIONS,
   type ProjectionId,
 } from './render2d/projections.js';
+import type { Trajectory } from './core/types.js';
 import { clearNode, el, mustGet } from './ui/dom.js';
 import {
   attach3DInput,
   attachFrontInput,
   attachPlanInput,
 } from './ui/dragInput.js';
+import { fromAzimuthElevation } from './core/vec3.js';
 import { createInspectorPanel } from './ui/inspector.js';
 import type { PanelView } from './ui/panels.js';
 import { createLibraryPanel } from './ui/panelLibrary.js';
 import { downloadBlock, openModal } from './ui/modal.js';
 import { createPresetPanel } from './ui/panelPresets.js';
+import { createBoardPanel } from './ui/panelBoard.js';
 import { createSolvePanel } from './ui/panelSolve.js';
 import { createShotPanel } from './ui/panelSliders.js';
 import {
@@ -41,6 +54,8 @@ import {
 const views = new Map<ProjectionId, CourtView2D>();
 const panels: PanelView[] = [];
 let scene3d: Scene3D | null = null;
+let boardOverlay: BoardOverlay | null = null;
+let ghostCache: { key: string; list: Trajectory[] } = { key: '', list: [] };
 let activePanel = 'shot';
 
 // ------------------------------------------------------------- vistas 2D
@@ -63,6 +78,49 @@ const mount2D = (): void => {
   // que un clic ahi no puede decidir donde esta parado el jugador.
   attachPlanInput(views.get('plan')!);
   attachFrontInput(views.get('front')!);
+
+  // FASE 9: la pizarra vive sobre la planta, que es la vista que un
+  // entrenador dibuja en una servilleta.
+  const plan = views.get('plan')!;
+  boardOverlay = new BoardOverlay(plan.overlayLayer, plan.svg, plan.projection, {
+    getBoard: () => state.board,
+    getTool: () => state.tool,
+    setBoard: (next) => {
+      update({ board: next });
+      storeBoard(next);
+    },
+    askText: () => window.prompt('Texto de la nota'),
+  });
+  boardOverlay.render();
+};
+
+/**
+ * Los pasos anteriores de la jugada se dibujan en gris. Es lo que
+ * convierte una secuencia de tiros sueltos en una jugada legible.
+ */
+const ghostsForPlay = (): Trajectory[] => {
+  const play = state.plays.find((p) => p.id === state.currentPlayId);
+  if (!play || state.playStep <= 0) return [];
+  const key = `${play.id}:${state.playStep}`;
+  if (ghostCache.key === key) return ghostCache.list;
+
+  const list: Trajectory[] = [];
+  for (let i = 0; i < state.playStep && i < play.steps.length; i++) {
+    const parsed = fromShotDoc(play.steps[i]!.shot);
+    if (!parsed) continue;
+    list.push(
+      simulate(
+        {
+          origin: parsed.origin,
+          direction: fromAzimuthElevation(parsed.azimuthDeg, parsed.elevationDeg),
+          speed: parsed.speed,
+        },
+        { model: parsed.model },
+      ),
+    );
+  }
+  ghostCache = { key, list };
+  return list;
 };
 
 // ------------------------------------------------------------- vista 3D
@@ -150,6 +208,7 @@ const mountPanel = (): void => {
     createShotPanel(),
     createPresetPanel(),
     createSolvePanel(),
+    createBoardPanel(),
     createInspectorPanel(),
     createLibraryPanel(),
   );
@@ -384,6 +443,8 @@ const redraw = (changed?: ReadonlySet<string>): void => {
   const trajectoryChanged = !changed || changed.has('trajectory');
   if (!changed || changed.has('model') || changed.has('serveMode')) syncTopbar();
 
+  const ghosts = ghostsForPlay();
+
   const plan = views.get('plan');
   if (plan && (!changed || changed.has('trajectory') || changed.has('mirror'))) {
     plan.setUnfold(
@@ -397,7 +458,16 @@ const redraw = (changed?: ReadonlySet<string>): void => {
       origin: state.shot.origin,
       aim: state.aim,
       target: state.solveTarget,
+      ghosts,
     });
+  }
+
+  if (boardOverlay && (!changed || changed.has('board'))) {
+    boardOverlay.render();
+  }
+
+  if (boardOverlay && (!changed || changed.has('board'))) {
+    boardOverlay.render();
   }
 
   if (scene3d) {
@@ -406,6 +476,7 @@ const redraw = (changed?: ReadonlySet<string>): void => {
     if (trajectoryChanged) {
       scene3d.trajectory.setTrajectory(state.trajectory);
       scene3d.trajectory.setOrigin(state.shot.origin);
+      scene3d.trajectory.setGhosts(ghosts);
     }
     if (!changed || changed.has('aim')) scene3d.trajectory.setAim(state.aim);
     scene3d.trajectory.setPlayhead(state.playhead);
@@ -463,6 +534,11 @@ const restoreFromUrlAndStorage = (): void => {
   if (prefs.l) update({ layout: prefs.l as LayoutId });
   if (prefs.mi) update({ mirror: true });
   if (prefs.sv) update({ serveMode: true });
+
+  const plays = loadPlays();
+  if (plays.length) update({ plays });
+  const board = loadBoard();
+  if (board) update({ board: cloneBoard(board) });
 
   const doc = readHashDoc();
   if (doc) applyShotDoc(doc.shot);

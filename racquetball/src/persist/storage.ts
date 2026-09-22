@@ -7,10 +7,13 @@
  * se pierde es recordar cosas entre sesiones.
  */
 
+import type { Board, Play } from '../core/board.js';
 import type { NamedShot, ShotDoc, ViewDoc } from './schema.js';
 
 const KEY_SHOTS = 'rtl.v1.shots';
 const KEY_VIEW = 'rtl.v1.view';
+const KEY_PLAYS = 'rtl.v1.plays';
+const KEY_BOARD = 'rtl.v1.board';
 
 const read = <T>(key: string, fallback: T): T => {
   try {
@@ -56,6 +59,16 @@ export const deleteShot = (id: string): NamedShot[] => {
   storeSavedShots(list);
   return list;
 };
+
+export const loadPlays = (): Play[] => {
+  const list = read<Play[]>(KEY_PLAYS, []);
+  return Array.isArray(list) ? list.filter((p) => p && p.id && p.steps) : [];
+};
+
+export const storePlays = (list: Play[]): boolean => write(KEY_PLAYS, list);
+
+export const loadBoard = (): Board | null => read<Board | null>(KEY_BOARD, null);
+export const storeBoard = (board: Board): boolean => write(KEY_BOARD, board);
 
 export const loadViewPrefs = (): ViewDoc => read<ViewDoc>(KEY_VIEW, {});
 export const storeViewPrefs = (view: ViewDoc): boolean => write(KEY_VIEW, view);

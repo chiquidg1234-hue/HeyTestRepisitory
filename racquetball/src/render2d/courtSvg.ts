@@ -61,12 +61,12 @@ export class CourtView2D {
 
     this.gUnfold = svgEl('g', { class: 'layer-unfold' }, this.svg);
     this.gStatic = svgEl('g', { class: 'layer-static' }, this.svg);
-    this.gOverlay = svgEl('g', { class: 'layer-overlay' }, this.svg);
     this.gGhosts = svgEl('g', { class: 'layer-ghosts' }, this.svg);
     this.gTrajectory = svgEl('g', { class: 'layer-trajectory' }, this.svg);
     this.gMarkers = svgEl('g', { class: 'layer-markers' }, this.svg);
     this.gBall = svgEl('g', { class: 'layer-ball' }, this.svg);
     this.gGuide = svgEl('g', { class: 'layer-guide' }, this.svg);
+    this.gOverlay = svgEl('g', { class: 'layer-overlay' }, this.svg);
 
     this.drawStatic(options);
   }

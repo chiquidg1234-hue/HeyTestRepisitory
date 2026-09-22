@@ -830,6 +830,57 @@ input[type='range']::-moz-range-thumb {
   border-color: rgba(239, 95, 95, 0.4);
 }
 
+.board-token-bg {
+  stroke: var(--bg-sunken);
+  stroke-width: 0.045;
+  cursor: grab;
+}
+.board-token-text {
+  fill: #06121f;
+  text-anchor: middle;
+  dominant-baseline: central;
+  font-family: var(--font);
+  font-weight: 700;
+  pointer-events: none;
+}
+/* Punteadas a proposito: tienen que distinguirse de un vistazo de las
+   trayectorias de pelota, que van solidas. */
+.board-arrow-line {
+  stroke: #d6b3ff;
+  stroke-width: 0.06;
+  stroke-dasharray: 0.26 0.16;
+  stroke-linecap: round;
+}
+.board-stroke {
+  fill: none;
+  stroke: #d6b3ff;
+  stroke-width: 0.055;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.85;
+}
+.board-note {
+  fill: var(--text);
+  text-anchor: middle;
+  dominant-baseline: middle;
+  font-family: var(--font);
+  paint-order: stroke;
+  stroke: var(--court-fill);
+  stroke-width: 0.1;
+  stroke-linejoin: round;
+}
+
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+.tool-grid .btn {
+  padding: 6px 4px;
+  font-size: 11.5px;
+  text-align: center;
+}
+
 /* ------------------------------------------------------------- modal */
 
 .modal-host {

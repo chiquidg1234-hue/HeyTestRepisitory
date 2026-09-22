@@ -17,6 +17,8 @@ import type {
   Trajectory,
   Vec3,
 } from '../core/types.js';
+import { emptyBoard, type Board, type Play } from '../core/board.js';
+import type { BoardTool } from '../render2d/overlay.js';
 import { presetById, resolvePreset } from '../core/presets.js';
 import { fromShotDoc, type ShotDoc } from '../persist/schema.js';
 import { fromAzimuthElevation, normalize, sub, v3 } from '../core/vec3.js';
@@ -52,6 +54,14 @@ export interface AppState {
   solveTarget: { x: number; z: number; bounceIndex: 1 | 2 } | null;
   /** Mientras esta activo, un clic en la planta elige el objetivo. */
   targetPickMode: boolean;
+
+  // --- pizarra tactica (fase 9) ---
+  board: Board;
+  tool: BoardTool;
+  plays: Play[];
+  currentPlayId: string | null;
+  /** Paso activo de la jugada. -1 = ninguno. */
+  playStep: number;
 
   // --- input ---
   inputMode: InputMode;
@@ -108,6 +118,12 @@ export const state: AppState = {
   layout: 'split',
   mirror: false,
   serveMode: false,
+
+  board: emptyBoard(),
+  tool: 'select',
+  plays: [],
+  currentPlayId: null,
+  playStep: -1,
 
   solveTarget: null,
   targetPickMode: false,

@@ -16,6 +16,8 @@ import {
   storeSavedShots,
 } from '../persist/storage.js';
 import { buildShareUrl, decodeDoc } from '../persist/share.js';
+import { storePlays } from '../persist/storage.js';
+import type { Play } from '../core/board.js';
 import { clearNode, el } from './dom.js';
 import { copyField, openModal } from './modal.js';
 import type { PanelView } from './panels.js';
@@ -112,11 +114,12 @@ export const createLibraryPanel = (): PanelView => {
       v: DOC_VERSION,
       shot: toShotDoc(state),
       saved,
+      plays: state.plays,
     };
     openModal('Exportar', [
       el('p', {
         class: 'field-hint',
-        text: 'Este JSON es el respaldo real: lleva el tiro actual y toda la biblioteca guardada.',
+        text: 'Este JSON es el respaldo real: lleva el tiro actual, la biblioteca guardada y todas las jugadas de la pizarra.',
       }),
       copyField(JSON.stringify(doc, null, 2), 12),
     ]);
@@ -150,7 +153,15 @@ export const createLibraryPanel = (): PanelView => {
         storeSavedShots(saved);
         renderList();
       }
-      status.textContent = `Importado. ${doc.saved?.length ?? 0} tiro(s) en la biblioteca.`;
+      const plays = Array.isArray(doc.plays) ? (doc.plays as Play[]) : [];
+      if (plays.length) {
+        const byId = new Map(state.plays.map((p) => [p.id, p]));
+        for (const play of plays) if (play?.id) byId.set(play.id, play);
+        const merged = [...byId.values()];
+        update({ plays: merged });
+        storePlays(merged);
+      }
+      status.textContent = `Importado. ${doc.saved?.length ?? 0} tiro(s) y ${plays.length} jugada(s).`;
     });
 
     openModal('Importar', [
