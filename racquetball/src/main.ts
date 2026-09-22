@@ -216,12 +216,24 @@ const mountTopbarRight = (): void => {
     group.appendChild(b);
   }
   host.appendChild(group);
+
+  const serve = el('button', {
+    class: 'btn',
+    type: 'button',
+    'data-serve-mode': '',
+    title: 'Juzga el tiro como saque: corto, largo, tres paredes, techo.',
+    text: 'Modo saque',
+  });
+  serve.addEventListener('click', () => update({ serveMode: !state.serveMode }));
+  host.appendChild(serve);
 };
 
 const syncTopbar = (): void => {
   for (const b of document.querySelectorAll<HTMLElement>('[data-model]')) {
     b.setAttribute('aria-selected', String(b.dataset.model === state.model));
   }
+  const serve = document.querySelector<HTMLElement>('[data-serve-mode]');
+  serve?.classList.toggle('btn--active', state.serveMode);
 };
 
 // ------------------------------------------------------------- timeline
@@ -294,7 +306,7 @@ const syncTimeline = (): void => {
 
 const redraw = (changed?: ReadonlySet<string>): void => {
   const trajectoryChanged = !changed || changed.has('trajectory');
-  if (!changed || changed.has('model')) syncTopbar();
+  if (!changed || changed.has('model') || changed.has('serveMode')) syncTopbar();
 
   const plan = views.get('plan');
   if (plan && (!changed || changed.has('trajectory') || changed.has('mirror'))) {
