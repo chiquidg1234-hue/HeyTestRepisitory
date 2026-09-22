@@ -18,6 +18,21 @@ const escapeForScript = (code) =>
   // Un `</script>` dentro del bundle cerraria la etiqueta antes de tiempo.
   code.replace(/<\/script>/gi, '<\\/script>');
 
+/**
+ * String.replace con un reemplazo de TEXTO interpreta $&, $`, $' y $1 como
+ * patrones. El bundle de lz-string contiene el alfabeto base64 url-safe,
+ * que acaba en "+-$", y ese $ iba seguido de una comilla invertida: el
+ * motor lo leia como $` e insertaba TODO el HTML anterior en mitad del
+ * codigo. El archivo resultante cargaba sin pedir nada a la red y con
+ * apariencia normal, pero moria con "Invalid left-hand side in
+ * assignment" y la app no arrancaba.
+ *
+ * Con una FUNCION de reemplazo no se interpreta nada. Nunca se debe
+ * inyectar codigo con replace de texto.
+ */
+const replaceOnce = (haystack, needle, replacement) =>
+  haystack.replace(needle, () => replacement);
+
 const dirSize = async (dir) => {
   let total = 0;
   for (const entry of await readdir(dir, { withFileTypes: true })) {
@@ -29,24 +44,39 @@ const dirSize = async (dir) => {
 
 const main = async () => {
   let html = await readFile(join(dist, 'index.html'), 'utf8');
+  const inlinedScripts = [];
 
   const scripts = [...html.matchAll(/<script[^>]*src="([^"]+)"[^>]*><\/script>/g)];
   for (const [tag, src] of scripts) {
     const code = await readFile(join(dist, src.replace(/^\.?\//, '')), 'utf8');
-    html = html.replace(
+    html = replaceOnce(
+      html,
       tag,
       `<script type="module">\n${escapeForScript(code)}\n</script>`,
     );
+    inlinedScripts.push(escapeForScript(code));
   }
 
   const links = [...html.matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"[^>]*>/g)];
   for (const [tag, href] of links) {
     const css = await readFile(join(dist, href.replace(/^\.?\//, '')), 'utf8');
-    html = html.replace(tag, `<style>\n${css}\n</style>`);
+    html = replaceOnce(html, tag, `<style>\n${css}\n</style>`);
   }
 
   // Los modulos precargados ya estan dentro: el <link modulepreload> sobra.
   html = html.replace(/<link[^>]*rel="modulepreload"[^>]*>/g, '');
+
+  // Guardia contra la clase de bug de arriba: lo que quedo dentro de la
+  // etiqueta tiene que ser EXACTAMENTE lo que se metio, byte a byte.
+  for (const expected of inlinedScripts) {
+    if (!html.includes(expected)) {
+      console.error(
+        'ERROR: el codigo inlineado no coincide con el bundle. ' +
+          'Algo lo ha alterado al insertarlo.',
+      );
+      process.exit(1);
+    }
+  }
 
   await writeFile(OUT, html, 'utf8');
 

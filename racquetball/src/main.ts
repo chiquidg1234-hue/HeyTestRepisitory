@@ -229,6 +229,24 @@ const mountPanel = (): void => {
     body.appendChild(panel.root);
   }
 
+  // En movil el panel ocupa casi la mitad de la pantalla. Poder plegarlo
+  // es lo que permite ver la cancha entera sin cambiar de vista.
+  const collapse = el('button', {
+    class: 'panel-collapse',
+    type: 'button',
+    'data-collapse': '',
+    'aria-label': 'Plegar o desplegar el panel',
+    title: 'Plegar el panel',
+    text: '▾',
+  });
+  collapse.addEventListener('click', () => {
+    const panel = mustGet('panel');
+    const collapsed = panel.classList.toggle('panel--collapsed');
+    collapse.textContent = collapsed ? '▴' : '▾';
+    scene3d?.resize();
+  });
+  tabs.appendChild(collapse);
+
   selectPanel(activePanel);
 };
 
@@ -362,6 +380,37 @@ const syncTopbar = (): void => {
   serve?.classList.toggle('btn--active', state.serveMode);
 };
 
+// ------------------------------------------------------------ responsive
+
+/**
+ * En movil la barra de motor / saque / PNG no cabe arriba sin recortar
+ * las pestanas de vista, asi que se MUEVE al panel. Se mueve el mismo
+ * nodo, no se duplica: duplicarlo obligaria a sincronizar dos copias de
+ * cada boton y es la clase de cosa que se desincroniza sola.
+ */
+const mountResponsive = (): void => {
+  const bar = mustGet('topbar-right');
+  const topbar = document.querySelector('.topbar');
+  const panel = mustGet('panel');
+  const query = window.matchMedia('(max-width: 860px)');
+
+  const place = (): void => {
+    if (query.matches) {
+      if (bar.parentElement !== panel) {
+        bar.classList.add('panel-toolbar');
+        panel.insertBefore(bar, panel.firstChild);
+      }
+    } else if (bar.parentElement !== topbar) {
+      bar.classList.remove('panel-toolbar');
+      topbar?.appendChild(bar);
+    }
+    scene3d?.resize();
+  };
+
+  query.addEventListener('change', place);
+  place();
+};
+
 // ------------------------------------------------------------- timeline
 
 let scrub: HTMLInputElement;
@@ -424,7 +473,12 @@ const syncTimeline = (): void => {
   const total = Math.max(state.trajectory.totalTime, 1e-3);
   scrub.max = String(total);
   if (document.activeElement !== scrub) scrub.value = String(state.playhead);
-  timeLabel.textContent = `${state.playhead.toFixed(3)} s / ${total.toFixed(2)} s`;
+  // En pantallas estrechas el formato largo se corta a media cifra, que
+  // es peor que no mostrarlo: se acorta en vez de truncarse.
+  timeLabel.textContent =
+    window.innerWidth < 560
+      ? `${state.playhead.toFixed(2)}/${total.toFixed(1)}s`
+      : `${state.playhead.toFixed(3)} s / ${total.toFixed(2)} s`;
   playButton.textContent = state.playing ? '❚❚' : '▶';
 };
 
@@ -516,6 +570,33 @@ const mountKeyboard = (): void => {
     if (e.key === ' ') {
       e.preventDefault();
       togglePlay();
+      return;
+    }
+    // Avanzar y retroceder fotograma a fotograma: pararse justo en un
+    // rebote es la mitad del valor pedagogico del scrub.
+    const step = e.shiftKey ? 0.002 : 0.02;
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      update({
+        playing: false,
+        playhead: Math.min(state.trajectory.totalTime, state.playhead + step),
+      });
+      return;
+    }
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      update({ playing: false, playhead: Math.max(0, state.playhead - step) });
+      return;
+    }
+    // Saltar al siguiente rebote / al anterior.
+    if (e.key === '.' || e.key === ',') {
+      e.preventDefault();
+      const times = state.trajectory.bounces.map((b) => b.time);
+      const next =
+        e.key === '.'
+          ? times.find((t) => t > state.playhead + 1e-6)
+          : [...times].reverse().find((t) => t < state.playhead - 1e-6);
+      if (next !== undefined) update({ playing: false, playhead: next });
     }
   });
 };
@@ -552,6 +633,7 @@ const boot = (): void => {
   mountPanel();
   mountTimeline();
   mountKeyboard();
+  mountResponsive();
 
   restoreFromUrlAndStorage();
 

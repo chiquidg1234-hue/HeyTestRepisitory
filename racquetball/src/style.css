@@ -103,6 +103,10 @@ body {
 
 .layout-tabs {
   display: flex;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
   gap: 2px;
   background: var(--bg-sunken);
   padding: 3px;
@@ -110,11 +114,34 @@ body {
   border: 1px solid var(--border-soft);
 }
 
+.layout-tabs::-webkit-scrollbar {
+  display: none;
+}
+.layout-tabs .tab {
+  white-space: nowrap;
+}
+
 .topbar-right {
   margin-left: auto;
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 0 0 auto;
+}
+.brand {
+  flex: 0 0 auto;
+}
+
+.panel-tabs {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.panel-tabs::-webkit-scrollbar {
+  display: none;
+}
+.panel-tabs .tab {
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 /* ------------------------------------------------------------- botones */
@@ -182,6 +209,7 @@ button {
 .viewports {
   flex: 1 1 auto;
   min-width: 0;
+  min-height: 0;
   display: grid;
   gap: 1px;
   background: var(--border-soft);
@@ -529,6 +557,19 @@ button {
   gap: 2px;
   padding: 8px 8px 0;
   border-bottom: 1px solid var(--border-soft);
+}
+
+.panel-collapse {
+  margin-left: auto;
+  padding: 4px 9px;
+  color: var(--text-faint);
+  font-size: 12px;
+  border-radius: var(--radius-sm);
+  display: none;
+}
+.panel-collapse:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .panel-body {
@@ -1017,12 +1058,31 @@ a.btn {
   .workspace {
     flex-direction: column;
   }
+
+  /* El panel tiene una altura propia y el visor se queda con el resto.
+     Sin min-height: 0 en .viewports, el visor no encoge y empuja el
+     panel entero fuera de la pantalla: la app se queda sin controles. */
+  .viewports {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
   .panel {
-    flex: 0 0 auto;
-    max-height: 44vh;
+    flex: 0 0 47vh;
+    min-height: 0;
     border-left: 0;
     border-top: 1px solid var(--border);
   }
+  .panel-collapse {
+    display: block;
+  }
+  .panel.panel--collapsed {
+    flex: 0 0 auto;
+  }
+  .panel.panel--collapsed .panel-body,
+  .panel.panel--collapsed .panel-toolbar {
+    display: none;
+  }
+
   .viewports[data-layout='split'] {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
@@ -1033,15 +1093,85 @@ a.btn {
   .viewports[data-layout='split'] .viewport:not(.viewport--plan) {
     display: none;
   }
+
   .topbar {
     height: 46px;
     padding: 0 10px;
-    gap: 10px;
+    gap: 8px;
   }
   .brand-text {
     display: none;
   }
-  .layout-tabs {
+
+  /* La barra de motor / saque / PNG se muda al panel: en 400 px no cabe
+     arriba sin recortar las pestanas de vista. */
+  .panel-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 8px 0;
     overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .panel-toolbar::-webkit-scrollbar {
+    display: none;
+  }
+  .panel-toolbar .btn,
+  .panel-toolbar .tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .timeline {
+    padding: 7px 10px;
+    gap: 8px;
+  }
+  .timeline-time {
+    min-width: 0;
+    flex: 0 0 auto;
+    font-size: 11px;
+  }
+  .timeline input[type='range'] {
+    min-width: 0;
+  }
+
+  /* Objetivos de toque mas grandes. */
+  input[type='range'] {
+    height: 30px;
+  }
+  input[type='range']::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+    margin-top: -9px;
+  }
+  input[type='range']::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+  }
+  .btn,
+  .tab {
+    padding: 8px 12px;
+  }
+  .preset-grid {
+    grid-template-columns: 1fr;
+  }
+  .tool-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .modal-host {
+    padding: 10px;
+    align-items: flex-end;
+  }
+  .modal {
+    max-height: 88vh;
   }
 }
+
+/* Pantallas muy estrechas: el panel se queda con mas sitio, porque sin
+   controles la vista no sirve de nada. */
+@media (max-width: 420px) {
+  .panel {
+    flex: 0 0 52vh;
+  }
+}
+
