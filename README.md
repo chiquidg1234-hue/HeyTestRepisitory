@@ -12,19 +12,15 @@
 
 ---
 
-## Racquetball Trajectory Lab
+## Racquetball Trajectory Lab — movido a su propio repositorio
 
-Simulador de trayectorias de racquetball: una vista 3D y tres vistas 2D ortograficas de
-pizarra tactica, construido fase por fase segun `RACQUETBALL_SPEC.md`.
+El simulador de trayectorias de racquetball ya no vive aqui. Tiene repo propio:
 
-- **[racquetball/](racquetball/)** — el proyecto. Vite + TypeScript vanilla, sin backend.
-- **[racquetball/README.md](racquetball/README.md)** — como arrancarlo, probarlo y construirlo.
-- **[racquetball/DECISIONES.md](racquetball/DECISIONES.md)** — las decisiones de fase 0,
-  los tres sitios donde el codigo se aparta del spec a proposito, y los dos bugs
-  silenciosos que solo aparecieron al probarlo de verdad.
+**https://github.com/chiquidg1234-hue/raquetball**
 
-Las 13 fases del spec estan completas. 115 tests en verde. `npm run build` deja la app
-entera en un solo archivo HTML de 0.65 MB que funciona sin servidor y sin red.
+Se movio entero: las 13 fases del spec, 115 tests en verde y el build de un solo archivo.
+El historial de como se construyo sigue en este repositorio, en la rama
+`claude/trabajo-nocturno-avance-3321lf`.
 
 ---
 
